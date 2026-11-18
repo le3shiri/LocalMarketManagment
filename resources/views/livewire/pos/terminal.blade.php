@@ -7,8 +7,9 @@
         </div>
 
         {{-- Scanners press Enter a few ms after the last digit, before the debounced model update
-             reaches the server, so the typed value is passed to scan() directly. --}}
-        <form wire:submit="scan($refs.search.value)" x-data class="relative">
+             reaches the server: the typed value is passed to scan() directly and the field is
+             cleared here, so the late debounced update can't put the old code back. --}}
+        <form x-data @submit.prevent="const code = $refs.search.value; $refs.search.value = ''; $wire.scan(code)" class="relative">
             <input type="search" wire:model.live.debounce.200ms="search" autofocus autocomplete="off" x-ref="search"
                    x-init="$el.focus()" @focus-search.window="$nextTick(() => $el.focus())"
                    placeholder="Escanea el código de barras o escribe el nombre / SKU y pulsa Enter"

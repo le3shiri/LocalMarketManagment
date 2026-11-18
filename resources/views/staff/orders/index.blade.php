@@ -8,7 +8,8 @@
         </div>
         <div class="flex gap-2">
             @if (Route::has('staff.orders.create'))
-                <a href="{{ route('staff.orders.create', ['canal' => 'phone']) }}" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700">+ Pedido por teléfono</a>
+                <a href="{{ route('staff.orders.create', ['canal' => 'phone']) }}" class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">+ Pedido por teléfono</a>
+                <a href="{{ route('staff.orders.create', ['canal' => 'whatsapp']) }}" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700">+ Pedido por WhatsApp</a>
             @endif
         </div>
     </div>

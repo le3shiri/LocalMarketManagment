@@ -18,6 +18,17 @@
                     <div><dt class="text-stone-400">Modalidad</dt><dd class="font-medium">{{ $order->fulfillment->label() }}</dd>@if ($order->delivery_address)<dd>{{ $order->delivery_address }}</dd>@endif</div>
                     <div><dt class="text-stone-400">Franja</dt><dd class="font-medium">{{ $order->slot_date->format('d/m/Y') }}, {{ $order->slot }}</dd></div>
                 </dl>
+                @if ($order->creator)
+                    <p class="mb-2 text-xs text-stone-500">Registrado por {{ $order->creator->name }}</p>
+                @endif
+                @if ($order->source_message)
+                    <figure class="mb-4 rounded-lg border-l-4 border-emerald-500 bg-emerald-50 px-3 py-2 text-sm">
+                        <blockquote class="whitespace-pre-line text-stone-700">{{ $order->source_message }}</blockquote>
+                        @if ($order->source_reference)
+                            <figcaption class="mt-1 text-xs text-stone-500">{{ $order->source_reference }}</figcaption>
+                        @endif
+                    </figure>
+                @endif
                 @if ($order->notes)
                     <p class="mb-4 rounded-lg bg-stone-50 px-3 py-2 text-sm"><span class="text-stone-400">Observaciones:</span> {{ $order->notes }}</p>
                 @endif

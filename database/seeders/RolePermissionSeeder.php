@@ -23,6 +23,7 @@ class RolePermissionSeeder extends Seeder
         'stock.entry' => ['Registrar entradas de mercancía', 'Almacén'],
         'cart.use' => ['Comprar en la tienda online', 'Tienda online'],
         'orders.manage' => ['Gestionar pedidos (preparar, entregar, cancelar)', 'Pedidos'],
+        'orders.supervise' => ['Supervisar todos los pedidos e importes por canal', 'Pedidos'],
     ];
 
     /** role => [label, description, permissions] */

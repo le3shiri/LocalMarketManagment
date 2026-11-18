@@ -158,6 +158,45 @@ class StockService
     }
 
     /**
+     * Goods leaving the stock for a reason other than a sale (supplier return, internal
+     * use, donation, damage…). From the store, or from the free online stock: units
+     * reserved for orders are never touched and nothing goes below zero.
+     *
+     * @throws InvalidArgumentException with a user-facing message
+     */
+    public function removeStock(Product $product, float $quantity, string $channel, MovementType $type, User $user, string $reason, ?string $reference = null): ProductStock
+    {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('La cantidad debe ser mayor que cero.');
+        }
+
+        return DB::transaction(function () use ($product, $quantity, $channel, $type, $user, $reason, $reference) {
+            $stock = $this->lock($product);
+
+            $available = $channel === 'online' ? $stock->online_qty - $stock->reserved_qty : $stock->store_qty;
+            if ($quantity > $available + 0.0005) {
+                $where = $channel === 'online' ? 'online sin reservar' : 'en tienda';
+                throw new InvalidArgumentException("Solo hay {$product->formatQuantity(max(0, $available))} de «{$product->name}» {$where}.");
+            }
+
+            if ($channel === 'online') {
+                $stock->online_qty = round($stock->online_qty - $quantity, 3);
+            } else {
+                $stock->store_qty = round($stock->store_qty - $quantity, 3);
+            }
+            $stock->on_hand = max(0, round($stock->on_hand - $quantity, 3));
+            $stock->save();
+
+            $this->log($stock, $type, $user,
+                store: $channel === 'online' ? 0 : -$quantity,
+                online: $channel === 'online' ? -$quantity : 0,
+                reference: $reference, reason: $reason);
+
+            return $stock;
+        });
+    }
+
+    /**
      * Returned goods that can be sold again go back to the store shelf.
      *
      * @param  array<int, float>  $lines  product_id => quantity

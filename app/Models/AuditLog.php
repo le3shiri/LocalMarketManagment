@@ -26,6 +26,7 @@ class AuditLog extends Model
         'sale' => 'Venta en caja',
         'refund' => 'Devolución',
         'backup' => 'Copia de seguridad',
+        'export' => 'Exportación de datos',
     ];
 
     /** Actions that are always sensitive. */

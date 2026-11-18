@@ -1,4 +1,6 @@
 <x-layouts.app title="Inventario">
+    <x-warehouse-tabs />
+
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-stone-900">Inventario</h1>
@@ -52,7 +54,7 @@
                     @php($product = $stock->product)
                     <tr @class(['bg-amber-50' => $stock->is_below_minimum])>
                         <td class="px-4 py-3">
-                            <p class="font-medium text-stone-900">{{ $product->name }}</p>
+                            <a href="{{ route('warehouse.batches.index', $product) }}" class="font-medium text-stone-900 hover:text-emerald-700 hover:underline" title="Ver lotes">{{ $product->name }}</a>
                             <p class="text-xs text-stone-500">
                                 <span class="font-mono">{{ $product->sku }}</span> · {{ $product->category->name }}
                                 @if ($product->location) · {{ $product->location }} @endif
@@ -64,7 +66,18 @@
                         <td class="px-4 py-3 text-right text-stone-500">{{ $product->formatQuantity($stock->reserved_qty) }}</td>
                         <td class="px-4 py-3 text-right font-semibold text-emerald-700">{{ $product->formatQuantity($stock->available_online) }}</td>
                         <td class="px-4 py-3 text-right">
-                            {{ $product->formatQuantity($stock->min_alert) }}
+                            @can('stock.entry')
+                                <form method="POST" action="{{ route('warehouse.minimum.update', $product) }}" class="inline-flex items-center justify-end gap-1">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="text" name="min_alert" inputmode="decimal" value="{{ $stock->min_alert + 0 }}"
+                                           class="w-16 rounded-md border border-stone-300 px-2 py-1 text-right text-sm" aria-label="Mínimo de {{ $product->name }}">
+                                    <span class="text-xs text-stone-500">{{ $product->unit_type->suffix() }}</span>
+                                    <button class="rounded-md px-1.5 py-1 text-xs text-emerald-700 hover:bg-emerald-50" title="Guardar mínimo">✓</button>
+                                </form>
+                            @else
+                                {{ $product->formatQuantity($stock->min_alert) }}
+                            @endcan
                             @if ($stock->is_below_minimum)
                                 <span class="ml-1 rounded-full bg-amber-200 px-1.5 text-xs text-amber-900">Bajo mínimo</span>
                             @endif

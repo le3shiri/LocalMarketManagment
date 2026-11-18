@@ -10,6 +10,11 @@ enum MovementType: string
     case Delivery = 'delivery';
     case Sale = 'sale';
     case Return = 'return';
+    case Exit = 'exit';
+    case Adjustment = 'adjustment';
+    case Transfer = 'transfer';
+    case Expiry = 'expiry';
+    case WriteOff = 'writeoff';
 
     public function label(): string
     {
@@ -20,6 +25,11 @@ enum MovementType: string
             self::Delivery => 'Entrega de pedido',
             self::Sale => 'Venta en tienda',
             self::Return => 'Devolución de cliente',
+            self::Exit => 'Salida de mercancía',
+            self::Adjustment => 'Ajuste por recuento',
+            self::Transfer => 'Transferencia entre canales',
+            self::Expiry => 'Bloqueo por caducidad',
+            self::WriteOff => 'Merma',
         };
     }
 }

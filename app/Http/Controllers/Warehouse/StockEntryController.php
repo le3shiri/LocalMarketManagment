@@ -36,12 +36,23 @@ class StockEntryController extends Controller
             'online_qty' => ['required', 'numeric', 'min:0', 'max:99999'],
             'reference' => ['nullable', 'string', 'max:60'],
             'reason' => ['nullable', 'string', 'max:255'],
+            'lot_code' => ['nullable', 'string', 'max:40'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:today'],
         ], [], [
             'product_id' => 'producto', 'store_qty' => 'cantidad para tienda',
             'online_qty' => 'cantidad para online', 'reference' => 'albarán',
+            'lot_code' => 'lote', 'expires_at' => 'fecha de caducidad',
         ]);
 
         $product = Product::findOrFail($data['product_id']);
+
+        // Perishable products are traced by batch and expiry date (proposal, section 5).
+        if ($product->is_perishable) {
+            $request->validate([
+                'lot_code' => ['required'],
+                'expires_at' => ['required'],
+            ], ['required' => 'El :attribute es obligatorio en productos perecederos.'], ['lot_code' => 'lote', 'expires_at' => 'fecha de caducidad']);
+        }
 
         validator($data)->after(function (Validator $v) use ($data, $product) {
             if ($data['store_qty'] + $data['online_qty'] <= 0) {
@@ -52,7 +63,12 @@ class StockEntryController extends Controller
             }
         })->validate();
 
-        $stock->registerEntry($product, (float) $data['store_qty'], (float) $data['online_qty'], $request->user(), $data['reference'] ?? null, $data['reason'] ?? null);
+        $stock->registerEntry(
+            $product, (float) $data['store_qty'], (float) $data['online_qty'], $request->user(),
+            $data['reference'] ?? null, $data['reason'] ?? null,
+            lotCode: isset($data['lot_code']) ? strtoupper(trim($data['lot_code'])) : null,
+            expiresAt: $data['expires_at'] ?? null,
+        );
 
         return redirect()->route('warehouse.entries.create')
             ->with('status', "Entrada registrada: {$product->name} (+".$product->formatQuantity($data['store_qty'] + $data['online_qty']).').');

@@ -19,7 +19,14 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 - **Catálogo**: productos por unidad o por peso aproximado, perecederos, categorías, activación de la venta.
 - **Tienda online**: búsqueda, disponibilidad en tiempo real, carrito, checkout, «Mis pedidos» y seguimiento del estado en directo.
 - **Gestión de pedidos** (`/gestion/pedidos`): pedidos de web, teléfono y WhatsApp en un único panel; estados Pendiente → En preparación → Listo → Entregado, cancelación con motivo y detección de duplicados.
-- **Almacén**: dos stocks coordinados (tienda física / online), entradas de mercancía y libro de movimientos. La entrega descuenta lo reservado (con el peso real en productos por peso) y la cancelación lo libera.
+- **Almacén** (`/almacen`): dos stocks coordinados (tienda física / online) y libro de movimientos con exportación CSV. Incluye:
+  - entradas con lote y caducidad (obligatorios en perecederos); las salidas consumen primero el lote que caduca antes (FEFO);
+  - salidas con motivo, mermas valoradas, ajustes tras recuento físico y transferencias entre canales;
+  - reparto online configurable (25 % general y 20 % en frescos, por defecto);
+  - mínimos con lista de reposición y lotes próximos a caducar;
+  - los lotes caducados se bloquean para que no se vendan.
+
+  La entrega de un pedido descuenta lo reservado (con el peso real en productos por peso) y la cancelación lo libera.
 - **Caja / TPV** (`/caja`): lectura de códigos de barras EAN-13, cantidades y pesos, desglose de IVA (4/10/21 %), cobro en efectivo (con cambio) o con tarjeta (datáfono), ticket imprimible (factura simplificada) y devoluciones con sus reglas (15 días, perecederos que no vuelven a la venta).
 - **Pagos de pedidos**: el cliente elige efectivo o tarjeta al recoger o recibir el pedido, y el cobro se registra con el importe final.
 - **Ventas** (`/admin/ventas`): ventas, ticket medio, cobros por método (caja + pedidos) y devoluciones.
@@ -59,6 +66,15 @@ Todas usan la contraseña `password` (solo para entorno local).
 | Usuario de caja | `caja@localmarket.test` |
 | Encargado de almacén | `almacen@localmarket.test` |
 | Cliente | `cliente@localmarket.test` |
+
+## Tareas programadas
+
+```bash
+php artisan stock:block-expired   # 00:05 · bloquea los lotes caducados
+php artisan stock:expiry-alerts   # 07:30 · avisa al almacén de lo que caduca pronto
+```
+
+En producción basta con una entrada de cron: `* * * * * php artisan schedule:run`.
 
 ## Tests
 

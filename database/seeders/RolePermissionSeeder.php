@@ -21,6 +21,10 @@ class RolePermissionSeeder extends Seeder
         'products.manage' => ['Crear y editar productos', 'Catálogo'],
         'stock.view' => ['Consultar el inventario', 'Almacén'],
         'stock.entry' => ['Registrar entradas de mercancía', 'Almacén'],
+        'stock.exit' => ['Registrar salidas y mermas', 'Almacén'],
+        'stock.adjust' => ['Ajustar existencias tras un recuento', 'Almacén'],
+        'stock.transfer' => ['Transferir stock entre tienda y online', 'Almacén'],
+        'stock.channels' => ['Configurar el reparto de stock por canal', 'Almacén'],
         'cart.use' => ['Comprar en la tienda online', 'Tienda online'],
         'orders.manage' => ['Gestionar pedidos (preparar, entregar, cancelar)', 'Pedidos'],
         'orders.supervise' => ['Supervisar todos los pedidos e importes por canal', 'Pedidos'],
@@ -33,7 +37,7 @@ class RolePermissionSeeder extends Seeder
     public const ROLES = [
         Role::ADMIN => ['Administrador general', 'Configuración y administración global del sistema.', ['*']],
         Role::CASHIER => ['Usuario de caja', 'Ventas en tienda física y preparación de pedidos.', ['stock.view', 'orders.manage', 'pos.use']],
-        Role::WAREHOUSE => ['Encargado de almacén', 'Control de existencias, entradas y ubicaciones.', ['stock.view', 'stock.entry']],
+        Role::WAREHOUSE => ['Encargado de almacén', 'Control de existencias, entradas y ubicaciones.', ['stock.view', 'stock.entry', 'stock.exit', 'stock.adjust', 'stock.transfer']],
         Role::CUSTOMER => ['Cliente', 'Compra en la tienda online y consulta sus pedidos.', ['cart.use']],
     ];
 

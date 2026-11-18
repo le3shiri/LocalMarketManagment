@@ -1,5 +1,6 @@
 <x-layouts.app title="Entrada de mercancía">
-    <a href="{{ route('warehouse.stock.index') }}" class="text-sm text-stone-500 hover:underline">← Volver al inventario</a>
+    <x-warehouse-tabs />
+
 
     <div class="mt-3 grid gap-6 lg:grid-cols-5">
         <x-card title="Registrar entrada de mercancía" class="lg:col-span-2">
@@ -23,6 +24,12 @@
                     <x-input name="online_qty" label="Para online" inputmode="decimal" value="0" required />
                 </div>
                 <p class="text-xs text-stone-500">Propuesta inicial: entre el 20 % y el 30 % para el canal online, menos en frescos.</p>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <x-input name="lot_code" label="Lote" placeholder="Ej.: L2611-A" />
+                    <x-input name="expires_at" label="Caducidad" type="date" :min="today()->toDateString()" />
+                </div>
+                <p class="text-xs text-stone-500">Lote y caducidad son obligatorios en productos perecederos.</p>
 
                 <x-input name="reference" label="Albarán / referencia del proveedor" />
                 <x-input name="reason" label="Observaciones" />

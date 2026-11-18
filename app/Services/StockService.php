@@ -7,6 +7,7 @@ use App\Exceptions\InsufficientStockException;
 use App\Models\AuditLog;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\StockBatch;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -21,13 +22,13 @@ class StockService
     /**
      * Register received goods and split them between the store and the online channel.
      */
-    public function registerEntry(Product $product, float $storeQty, float $onlineQty, User $user, ?string $reference = null, ?string $reason = null): ProductStock
+    public function registerEntry(Product $product, float $storeQty, float $onlineQty, User $user, ?string $reference = null, ?string $reason = null, ?string $lotCode = null, ?string $expiresAt = null): ProductStock
     {
         if ($storeQty < 0 || $onlineQty < 0 || $storeQty + $onlineQty <= 0) {
             throw new InvalidArgumentException('La entrada debe ser mayor que cero y sin cantidades negativas.');
         }
 
-        return DB::transaction(function () use ($product, $storeQty, $onlineQty, $user, $reference, $reason) {
+        return DB::transaction(function () use ($product, $storeQty, $onlineQty, $user, $reference, $reason, $lotCode, $expiresAt) {
             $stock = $this->lock($product);
 
             $stock->store_qty += $storeQty;
@@ -36,6 +37,17 @@ class StockService
             $stock->save();
 
             $this->log($stock, MovementType::Entry, $user, store: $storeQty, online: $onlineQty, reference: $reference, reason: $reason);
+
+            // Every receipt is a batch; perishable ones carry their lot and expiry date.
+            StockBatch::create([
+                'product_id' => $product->id,
+                'lot_code' => $lotCode ?: ($reference ?: 'ENT-'.now()->format('Ymd-His')),
+                'expires_at' => $expiresAt,
+                'quantity_received' => $storeQty + $onlineQty,
+                'quantity_remaining' => $storeQty + $onlineQty,
+                'received_by' => $user->id,
+                'reference' => $reference,
+            ]);
 
             AuditLog::record('stock', "Entrada de {$product->formatQuantity($storeQty + $onlineQty)} de «{$product->name}»", $product, [
                 'tienda' => $storeQty, 'online' => $onlineQty, 'albarán' => $reference,
@@ -158,6 +170,178 @@ class StockService
     }
 
     /**
+     * Goods leaving the stock for a reason other than a sale (supplier return, internal
+     * use, donation, damage…). From the store, or from the free online stock: units
+     * reserved for orders are never touched and nothing goes below zero.
+     *
+     * @throws InvalidArgumentException with a user-facing message
+     */
+    public function removeStock(Product $product, float $quantity, string $channel, MovementType $type, User $user, string $reason, ?string $reference = null, bool $consumeBatches = true): ProductStock
+    {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('La cantidad debe ser mayor que cero.');
+        }
+
+        return DB::transaction(function () use ($product, $quantity, $channel, $type, $user, $reason, $reference, $consumeBatches) {
+            $stock = $this->lock($product);
+
+            $available = $channel === 'online' ? $stock->online_qty - $stock->reserved_qty : $stock->store_qty;
+            if ($quantity > $available + 0.0005) {
+                $where = $channel === 'online' ? 'online sin reservar' : 'en tienda';
+                throw new InvalidArgumentException("Solo hay {$product->formatQuantity(max(0, $available))} de «{$product->name}» {$where}.");
+            }
+
+            if ($channel === 'online') {
+                $stock->online_qty = round($stock->online_qty - $quantity, 3);
+            } else {
+                $stock->store_qty = round($stock->store_qty - $quantity, 3);
+            }
+            $stock->on_hand = max(0, round($stock->on_hand - $quantity, 3));
+            $stock->save();
+
+            $this->log($stock, $type, $user,
+                store: $channel === 'online' ? 0 : -$quantity,
+                online: $channel === 'online' ? -$quantity : 0,
+                reference: $reference, reason: $reason, consumeBatches: $consumeBatches);
+
+            return $stock;
+        });
+    }
+
+    /**
+     * Correct the real units after a physical count. The difference is applied to the
+     * store stock; if the count is so low that the store would go negative, the rest comes
+     * out of the free online stock. Units reserved for orders can never be adjusted away.
+     *
+     * @return float the difference applied (counted − recorded)
+     *
+     * @throws InvalidArgumentException with a user-facing message
+     */
+    public function adjustCount(Product $product, float $counted, User $user, string $reason): float
+    {
+        if ($counted < 0) {
+            throw new InvalidArgumentException('La cantidad contada no puede ser negativa.');
+        }
+
+        if (trim($reason) === '') {
+            throw new InvalidArgumentException('El motivo del ajuste es obligatorio.');
+        }
+
+        return DB::transaction(function () use ($product, $counted, $user, $reason) {
+            $stock = $this->lock($product);
+            $difference = round($counted - $stock->on_hand, 3);
+
+            if (abs($difference) < 0.0005) {
+                return 0.0;
+            }
+
+            $storeDelta = $difference;
+            $onlineDelta = 0.0;
+
+            if ($stock->store_qty + $difference < 0) {
+                $storeDelta = -$stock->store_qty;
+                $onlineDelta = round($difference - $storeDelta, 3); // negative
+                $freeOnline = $stock->online_qty - $stock->reserved_qty;
+
+                if (-$onlineDelta > $freeOnline + 0.0005) {
+                    throw new InvalidArgumentException(
+                        "El recuento ({$product->formatQuantity($counted)}) es inferior a lo reservado para pedidos ({$product->formatQuantity($stock->reserved_qty)}). Revisa los pedidos pendientes antes de ajustar."
+                    );
+                }
+            }
+
+            $stock->store_qty = round($stock->store_qty + $storeDelta, 3);
+            $stock->online_qty = round($stock->online_qty + $onlineDelta, 3);
+            $stock->on_hand = round($counted, 3);
+            $stock->save();
+
+            $this->log($stock, MovementType::Adjustment, $user, store: $storeDelta, online: $onlineDelta,
+                reason: $reason.' (contado '.$product->formatQuantity($counted).', diferencia '.($difference > 0 ? '+' : '').$product->formatQuantity($difference).')');
+
+            return $difference;
+        });
+    }
+
+    /**
+     * Move units between channels without changing the real units (e.g. mid-morning, when
+     * online sells out early and the shop has plenty). Online → store can only move units
+     * that aren't reserved for orders.
+     *
+     * @param  string  $to  'online' or 'store'
+     *
+     * @throws InvalidArgumentException with a user-facing message
+     */
+    public function transfer(Product $product, float $quantity, string $to, User $user, string $reason): ProductStock
+    {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('La cantidad a transferir debe ser mayor que cero.');
+        }
+
+        return DB::transaction(function () use ($product, $quantity, $to, $user, $reason) {
+            $stock = $this->lock($product);
+            $available = $to === 'online' ? $stock->store_qty : $stock->online_qty - $stock->reserved_qty;
+
+            if ($quantity > $available + 0.0005) {
+                $from = $to === 'online' ? 'en tienda' : 'online sin reservar';
+                throw new InvalidArgumentException("No se puede transferir {$product->formatQuantity($quantity)}: solo hay {$product->formatQuantity(max(0, $available))} {$from}.");
+            }
+
+            $sign = $to === 'online' ? 1 : -1;
+            $stock->online_qty = round($stock->online_qty + $sign * $quantity, 3);
+            $stock->store_qty = round($stock->store_qty - $sign * $quantity, 3);
+            $stock->save();
+
+            $this->log($stock, MovementType::Transfer, $user, store: -$sign * $quantity, online: $sign * $quantity, reason: $reason);
+
+            return $stock;
+        });
+    }
+
+    /**
+     * Take the remaining units of an expired batch out of the sellable stock so they can't
+     * be sold online or at the till: first from the store, then from free online stock.
+     * Units already reserved for orders are left reserved (staff must offer a substitute),
+     * which the ledger notes. The batch stays "expired" until someone confirms it was
+     * physically withdrawn.
+     *
+     * @return float units blocked
+     */
+    public function expireBatch(StockBatch $batch, ?User $user = null): float
+    {
+        return DB::transaction(function () use ($batch, $user) {
+            $batch = StockBatch::whereKey($batch->id)->lockForUpdate()->firstOrFail();
+
+            if ($batch->status !== StockBatch::ACTIVE) {
+                return 0.0;
+            }
+
+            $stock = ProductStock::where('product_id', $batch->product_id)->lockForUpdate()->firstOrFail();
+            $quantity = $batch->quantity_remaining;
+
+            $fromStore = min($stock->store_qty, $quantity);
+            $fromOnline = min(max(0, $stock->online_qty - $stock->reserved_qty), round($quantity - $fromStore, 3));
+            $blocked = round($fromStore + $fromOnline, 3);
+
+            $stock->store_qty = round($stock->store_qty - $fromStore, 3);
+            $stock->online_qty = round($stock->online_qty - $fromOnline, 3);
+            $stock->on_hand = max(0, round($stock->on_hand - $blocked, 3));
+            $stock->save();
+
+            $batch->status = StockBatch::EXPIRED;
+            $batch->save();
+
+            $reason = "Lote {$batch->lot_code} caducado el {$batch->expires_at?->format('d/m/Y')}";
+            if ($blocked + 0.0005 < $quantity) {
+                $reason .= ' · '.round($quantity - $blocked, 3).' reservado(s) en pedidos: ofrecer sustituto';
+            }
+
+            $this->log($stock, MovementType::Expiry, $user, store: -$fromStore, online: -$fromOnline, reference: $batch->lot_code, reason: $reason, consumeBatches: false);
+
+            return $blocked;
+        });
+    }
+
+    /**
      * Returned goods that can be sold again go back to the store shelf.
      *
      * @param  array<int, float>  $lines  product_id => quantity
@@ -215,8 +399,31 @@ class StockService
         return ProductStock::where('product_id', $product->id)->lockForUpdate()->firstOrFail();
     }
 
-    protected function log(ProductStock $stock, MovementType $type, ?User $user, float $store = 0, float $online = 0, float $reserved = 0, ?string $reference = null, ?string $reason = null): void
+    /**
+     * Units that physically leave the shop (sale, delivery, exit, negative count) are taken
+     * from batches, first-expiring first (FEFO). Stock without batches is simply ignored.
+     */
+    protected function consumeBatches(int $productId, float $quantity): void
     {
+        foreach (StockBatch::where('product_id', $productId)->available()->lockForUpdate()->get() as $batch) {
+            if ($quantity <= 0.0005) {
+                break;
+            }
+
+            $taken = min($batch->quantity_remaining, $quantity);
+            $batch->quantity_remaining = round($batch->quantity_remaining - $taken, 3);
+            $batch->save();
+            $quantity = round($quantity - $taken, 3);
+        }
+    }
+
+    protected function log(ProductStock $stock, MovementType $type, ?User $user, float $store = 0, float $online = 0, float $reserved = 0, ?string $reference = null, ?string $reason = null, bool $consumeBatches = true): void
+    {
+        $leaving = -($store + $online);
+        if ($consumeBatches && $type !== MovementType::Transfer && $leaving > 0) {
+            $this->consumeBatches($stock->product_id, $leaving);
+        }
+
         StockMovement::create([
             'product_id' => $stock->product_id,
             'user_id' => $user?->id,

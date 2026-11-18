@@ -91,5 +91,46 @@
                 <button type="button" wire:click="clear" wire:confirm="¿Anular la venta en curso?" class="mt-4 text-sm text-stone-500 hover:text-red-600">Anular venta</button>
             @endif
         </x-card>
+
+        @unless ($this->totals->isEmpty())
+            <x-card title="Cobro">
+                <div class="mb-4 grid grid-cols-2 gap-2">
+                    @foreach (\App\Enums\PaymentMethod::cases() as $method)
+                        <label @class([
+                            'cursor-pointer rounded-lg border-2 px-3 py-2 text-center font-medium',
+                            'border-emerald-600 bg-emerald-50 text-emerald-800' => $paymentMethod === $method->value,
+                            'border-stone-200 text-stone-600' => $paymentMethod !== $method->value,
+                        ])>
+                            <input type="radio" wire:model.live="paymentMethod" value="{{ $method->value }}" class="sr-only">{{ $method->label() }}
+                        </label>
+                    @endforeach
+                </div>
+
+                @if ($paymentMethod === 'cash')
+                    <label for="tendered" class="block text-sm font-medium text-stone-700">Entregado</label>
+                    <input id="tendered" type="text" inputmode="decimal" wire:model.live.debounce.300ms="tendered"
+                           class="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-right text-xl">
+                    @error('tendered') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    <div class="mt-2 grid grid-cols-5 gap-1 text-sm">
+                        <button type="button" wire:click="exactAmount" class="rounded-md bg-stone-100 py-1.5 hover:bg-stone-200">Exacto</button>
+                        @foreach ([5, 10, 20, 50] as $note)
+                            <button type="button" wire:click="addTendered({{ $note }})" class="rounded-md bg-stone-100 py-1.5 hover:bg-stone-200">+{{ $note }} €</button>
+                        @endforeach
+                    </div>
+                    @if (! is_null($this->change))
+                        <p @class(['mt-3 flex justify-between text-lg font-semibold', 'text-emerald-700' => $this->change >= 0, 'text-red-600' => $this->change < 0])>
+                            <span>{{ $this->change >= 0 ? 'Cambio' : 'Falta' }}</span>
+                            <span data-change>{{ Number::currency(abs($this->change), 'EUR', 'es') }}</span>
+                        </p>
+                    @endif
+                @else
+                    <p class="mb-2 text-sm text-stone-500">Cobra en el datáfono y, si quieres, anota el código de autorización del recibo.</p>
+                    <label for="authCode" class="block text-sm font-medium text-stone-700">Código de autorización (opcional)</label>
+                    <input id="authCode" type="text" wire:model="authCode" maxlength="20" autocomplete="off"
+                           class="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 font-mono uppercase">
+                    @error('authCode') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                @endif
+            </x-card>
+        @endunless
     </aside>
 </div>

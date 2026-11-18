@@ -16,6 +16,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            // The index must go first: SQLite refuses to drop an indexed column.
+            $table->dropIndex(['is_active']);
             $table->dropColumn('is_active');
         });
     }

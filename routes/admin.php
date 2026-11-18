@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderSupervisionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
@@ -30,7 +31,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('pedidos', [OrderSupervisionController::class, 'index'])->middleware('can:orders.supervise')->name('orders.index');
 
-    Route::get('ventas', [SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
+    Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
+
+    Route::get('ventas',[SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
 
     Route::get('historial', [AuditLogController::class, 'index'])->middleware('can:audit.view')->name('audit.index');
 

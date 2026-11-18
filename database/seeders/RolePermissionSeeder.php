@@ -17,6 +17,8 @@ class RolePermissionSeeder extends Seeder
         'users.manage' => ['Gestionar usuarios', 'Usuarios y roles'],
         'roles.manage' => ['Gestionar roles y permisos', 'Usuarios y roles'],
         'audit.view' => ['Consultar el historial de operaciones', 'Usuarios y roles'],
+        'dashboard.view' => ['Ver el panel de indicadores', 'Informes'],
+        'reports.view' => ['Generar informes de ventas', 'Informes'],
         'categories.manage' => ['Gestionar categorías', 'Catálogo'],
         'products.manage' => ['Crear y editar productos', 'Catálogo'],
         'stock.view' => ['Consultar el inventario', 'Almacén'],

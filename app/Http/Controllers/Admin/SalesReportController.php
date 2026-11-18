@@ -6,6 +6,7 @@ use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Refund;
 use App\Models\Sale;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -58,7 +59,10 @@ class SalesReportController extends Controller
                 ->groupBy('day')->orderByDesc('day')->get(),
             'tickets' => (clone $sales)->with(['payment', 'cashier'])->withCount('items')->latest('id')->paginate(20)->withQueryString(),
             'cashiers' => User::whereIn('id', Payment::query()->select('user_id')->whereNotNull('user_id')->distinct())->orderBy('name')->get(['id', 'name']),
-            'sourceLabels' => [(new Sale)->getMorphClass() => 'Caja', (new Order)->getMorphClass() => 'Pedidos'],
+            'sourceLabels' => [(new Sale)->getMorphClass() => 'Caja', (new Order)->getMorphClass() => 'Pedidos', (new Refund)->getMorphClass() => 'Devoluciones'],
+            'refundsTotal' => (float) Refund::whereBetween('created_at', [$from, $to])
+                ->when($filters['cashier'] ?? null, fn ($q, $id) => $q->where('user_id', $id))
+                ->sum('amount'),
         ]);
     }
 }

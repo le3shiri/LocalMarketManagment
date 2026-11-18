@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\UnitType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SaleItem extends Model
 {
@@ -26,6 +27,17 @@ class SaleItem extends Model
     public function sale(): BelongsTo
     {
         return $this->belongsTo(Sale::class);
+    }
+
+    public function refundItems(): HasMany
+    {
+        return $this->hasMany(RefundItem::class);
+    }
+
+    /** Quantity that can still be returned. */
+    public function refundableQuantity(): float
+    {
+        return max(0, round($this->quantity - (float) $this->refundItems()->sum('quantity'), 3));
     }
 
     public function product(): BelongsTo

@@ -26,6 +26,7 @@ class RolePermissionSeeder extends Seeder
         'orders.supervise' => ['Supervisar todos los pedidos e importes por canal', 'Pedidos'],
         'pos.use' => ['Usar el terminal de caja (TPV)', 'Caja'],
         'sales.view' => ['Consultar ventas y pagos', 'Caja'],
+        'refunds.manage' => ['Registrar devoluciones y reembolsos', 'Caja'],
     ];
 
     /** role => [label, description, permissions] */

@@ -53,7 +53,13 @@
                         <x-nav-link :href="route('admin.sales.index')" :active="request()->routeIs('admin.sales.*')">Ventas</x-nav-link>
                     @endif
                     @if (Route::has('warehouse.stock.index') && auth()->user()->can('stock.view'))
-                        <x-nav-link :href="route('warehouse.stock.index')" :active="request()->routeIs('warehouse.*')">Almacén</x-nav-link>
+                        <x-nav-link :href="route('warehouse.stock.index')" :active="request()->routeIs('warehouse.*')">
+                            Almacén
+                            @php($lowStock = \App\Models\ProductStock::belowMinimum()->count())
+                            @if ($lowStock > 0)
+                                <span class="ml-1 rounded-full bg-amber-500 px-1.5 text-xs text-white" title="Productos bajo mínimo" data-low-stock>{{ $lowStock }}</span>
+                            @endif
+                        </x-nav-link>
                     @endif
                     @if (Route::has('admin.users.index') && auth()->user()->can('users.manage'))
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">Usuarios</x-nav-link>

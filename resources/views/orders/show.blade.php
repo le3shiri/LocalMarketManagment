@@ -7,8 +7,10 @@
                     <p class="text-sm text-stone-500">Pedido</p>
                     <h1 class="text-2xl font-bold text-stone-900">{{ $order->code }}</h1>
                 </div>
-                <span class="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">{{ $order->status->label() }}</span>
+                <a href="{{ route('orders.index') }}" class="text-sm text-stone-500 hover:underline">Mis pedidos</a>
             </div>
+
+            <livewire:order-tracker :order="$order" />
 
             <dl class="mb-6 grid gap-3 text-sm sm:grid-cols-2">
                 <div><dt class="text-stone-400">Modalidad</dt><dd class="font-medium">{{ $order->fulfillment->label() }}</dd></div>
@@ -43,6 +45,14 @@
             </table>
         </x-card>
 
-        <a href="{{ route('catalog.index') }}" class="mt-4 inline-block text-sm font-medium text-emerald-700 hover:underline">Seguir comprando</a>
+        <div class="mt-4 flex items-center justify-between">
+            <a href="{{ route('catalog.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">Seguir comprando</a>
+            @if ($order->status === \App\Enums\OrderStatus::Pending)
+                <form method="POST" action="{{ route('orders.cancel', $order) }}" onsubmit="return confirm('¿Seguro que quieres cancelar este pedido?')">
+                    @csrf
+                    <button class="text-sm text-stone-500 hover:text-red-600">Cancelar pedido</button>
+                </form>
+            @endif
+        </div>
     </div>
 </x-layouts.app>

@@ -69,7 +69,7 @@ class AuditLogTest extends TestCase
 
         $permissionsLog = AuditLog::where('action', 'permissions')->sole();
         $this->assertSame(['stock.entry'], $permissionsLog->changes['añadidos']);
-        $this->assertSame(['stock.view'], $permissionsLog->changes['retirados']);
+        $this->assertEqualsCanonicalizing(['stock.view', 'orders.manage'], $permissionsLog->changes['retirados']);
 
         $product = Product::factory()->create(['name' => 'Arroz bomba']);
         app(StockService::class)->registerEntry($product, 30, 10, $this->admin, 'ALB-7');

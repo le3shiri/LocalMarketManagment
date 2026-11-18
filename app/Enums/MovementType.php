@@ -7,6 +7,7 @@ enum MovementType: string
     case Entry = 'entry';
     case Reserve = 'reserve';
     case Release = 'release';
+    case Delivery = 'delivery';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum MovementType: string
             self::Entry => 'Entrada de mercancía',
             self::Reserve => 'Reserva de pedido',
             self::Release => 'Liberación de reserva',
+            self::Delivery => 'Entrega de pedido',
         };
     }
 }

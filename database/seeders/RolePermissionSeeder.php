@@ -22,12 +22,14 @@ class RolePermissionSeeder extends Seeder
         'stock.view' => ['Consultar el inventario', 'Almacén'],
         'stock.entry' => ['Registrar entradas de mercancía', 'Almacén'],
         'cart.use' => ['Comprar en la tienda online', 'Tienda online'],
+        'orders.manage' => ['Gestionar pedidos (preparar, entregar, cancelar)', 'Pedidos'],
+        'orders.supervise' => ['Supervisar todos los pedidos e importes por canal', 'Pedidos'],
     ];
 
     /** role => [label, description, permissions] */
     public const ROLES = [
         Role::ADMIN => ['Administrador general', 'Configuración y administración global del sistema.', ['*']],
-        Role::CASHIER => ['Usuario de caja', 'Ventas en tienda física y preparación de pedidos.', ['stock.view']],
+        Role::CASHIER => ['Usuario de caja', 'Ventas en tienda física y preparación de pedidos.', ['stock.view', 'orders.manage']],
         Role::WAREHOUSE => ['Encargado de almacén', 'Control de existencias, entradas y ubicaciones.', ['stock.view', 'stock.entry']],
         Role::CUSTOMER => ['Cliente', 'Compra en la tienda online y consulta sus pedidos.', ['cart.use']],
     ];

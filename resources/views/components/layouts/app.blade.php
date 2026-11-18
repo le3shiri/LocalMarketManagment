@@ -31,11 +31,20 @@
                             @endif
                         </x-nav-link>
                     @endif
+                    @if (Route::has('orders.index') && auth()->user()->can('cart.use'))
+                        <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">Mis pedidos</x-nav-link>
+                    @endif
                     @if (Route::has('admin.products.index') && auth()->user()->can('products.manage'))
                         <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">Productos</x-nav-link>
                     @endif
                     @if (Route::has('admin.categories.index') && auth()->user()->can('categories.manage'))
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">Categorías</x-nav-link>
+                    @endif
+                    @if (Route::has('staff.orders.index') && auth()->user()->can('orders.manage'))
+                        <x-nav-link :href="route('staff.orders.index')" :active="request()->routeIs('staff.orders.*')">Pedidos</x-nav-link>
+                    @endif
+                    @if (Route::has('admin.orders.index') && auth()->user()->can('orders.supervise'))
+                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">Supervisión</x-nav-link>
                     @endif
                     @if (Route::has('warehouse.stock.index') && auth()->user()->can('stock.view'))
                         <x-nav-link :href="route('warehouse.stock.index')" :active="request()->routeIs('warehouse.*')">Almacén</x-nav-link>
@@ -51,6 +60,16 @@
                     @endif
 
                     <span class="mx-2 h-5 w-px bg-stone-200"></span>
+                    @if (Route::has('notifications.index'))
+                        @php($unread = auth()->user()->unreadNotifications()->count())
+                        <a href="{{ route('notifications.index') }}" class="relative rounded-md px-2 py-2 text-stone-600 hover:bg-stone-100"
+                           title="Avisos" aria-label="Avisos{{ $unread ? " ({$unread} sin leer)" : '' }}">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            @if ($unread)
+                                <span class="absolute -right-0.5 -top-0.5 rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white" data-unread>{{ $unread }}</span>
+                            @endif
+                        </a>
+                    @endif
                     @if (Route::has('profile.edit'))
                         <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">{{ auth()->user()->name }}</x-nav-link>
                     @else

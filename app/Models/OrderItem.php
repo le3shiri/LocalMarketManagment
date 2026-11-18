@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
-    protected $fillable = ['product_id', 'product_name', 'sku', 'unit_type', 'unit_price', 'quantity', 'line_total'];
+    protected $fillable = ['product_id', 'product_name', 'sku', 'unit_type', 'unit_price', 'quantity', 'delivered_quantity', 'line_total'];
 
     protected function casts(): array
     {
@@ -16,6 +16,7 @@ class OrderItem extends Model
             'unit_type' => UnitType::class,
             'unit_price' => 'decimal:2',
             'quantity' => 'float',
+            'delivered_quantity' => 'float',
             'line_total' => 'decimal:2',
         ];
     }

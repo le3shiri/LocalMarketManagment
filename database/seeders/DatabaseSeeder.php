@@ -2,24 +2,28 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(RolePermissionSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Demo accounts for local development only (password: "password").
+        $accounts = [
+            ['Ana Beltrán', 'admin@localmarket.test', Role::ADMIN],
+            ['Laura Caja', 'caja@localmarket.test', Role::CASHIER],
+            ['Jordi Almacén', 'almacen@localmarket.test', Role::WAREHOUSE],
+            ['Marta Puig', 'cliente@localmarket.test', Role::CUSTOMER],
+        ];
+
+        foreach ($accounts as [$name, $email, $role]) {
+            User::factory()->withRole($role)->create(compact('name', 'email'));
+        }
+
+        $this->call(CatalogSeeder::class);
     }
 }

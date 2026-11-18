@@ -46,6 +46,36 @@ class OrderWorkflow
         });
     }
 
+    /**
+     * Cancel an order and give its reserved stock back to the online channel.
+     * Staff can cancel any order that hasn't been delivered; a customer only their own
+     * order while it is still pending (nobody has started preparing it).
+     *
+     * @throws OrderTransitionException
+     */
+    public function cancel(Order $order, User $user, string $reason, bool $byCustomer = false): Order
+    {
+        return DB::transaction(function () use ($order, $user, $reason, $byCustomer) {
+            $order = $this->lock($order);
+
+            if ($order->status->isFinal()) {
+                throw new OrderTransitionException("El pedido {$order->code} ya está «{$order->status->label()}» y no se puede cancelar.");
+            }
+
+            if ($byCustomer && ($order->user_id !== $user->id || $order->status !== OrderStatus::Pending)) {
+                throw new OrderTransitionException('Tu pedido ya se está preparando. Llama a la tienda para cancelarlo.');
+            }
+
+            $lines = $order->items()->whereNotNull('product_id')->pluck('quantity', 'product_id')
+                ->map(fn ($quantity) => (float) $quantity)
+                ->all();
+
+            $this->stock->release($lines, $user, $order->code, $reason);
+
+            return $this->transition($order, OrderStatus::Cancelled, $user, $reason);
+        });
+    }
+
     /** Record the initial status of a freshly created order. */
     public function recordCreation(Order $order, ?User $user): void
     {

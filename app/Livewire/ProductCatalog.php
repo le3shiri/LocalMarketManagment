@@ -11,7 +11,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Catalog grid with live search by name/description and category filter.
+ * Catalog as shelves (one per section), with live search by name/description and a section filter.
+ * Searching shows a plain grid; choosing a section shows just that shelf.
  * Both filters live in the query string so results can be shared and bookmarked.
  */
 class ProductCatalog extends Component
@@ -62,6 +63,16 @@ class ProductCatalog extends Component
     {
         $term = trim($this->search);
 
+        // No search and no section chosen: the shop as shelves, every section with all its products.
+        if ($term === '' && ! $this->currentCategory) {
+            $shelves = Category::ordered()
+                ->whereHas('products', fn ($q) => $q->active())
+                ->with(['products' => fn ($q) => $q->active()->with(['category', 'stock'])->orderBy('name')])
+                ->get();
+
+            return view('livewire.product-catalog', ['shelves' => $shelves, 'products' => null]);
+        }
+
         $products = Product::active()
             ->with(['category', 'stock'])
             ->when($term !== '', fn ($q) => $q->where(fn ($q) => $q
@@ -71,6 +82,6 @@ class ProductCatalog extends Component
             ->orderBy('name')
             ->paginate(24);
 
-        return view('livewire.product-catalog', compact('products'));
+        return view('livewire.product-catalog', ['shelves' => null, 'products' => $products]);
     }
 }

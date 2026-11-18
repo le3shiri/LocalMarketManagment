@@ -4,13 +4,123 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source '../../app/Support/*.php';
 
+/*
+ * LocalMarket design system (docs/DISENO.md).
+ * Tokens come from the "LocalMarket design system" artifact: use these names, never raw hex values.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Grounds and ink */
+    --color-page: #F5F6F7;
+    --color-card: #FFFFFF;
+    --color-sunken: #F0F1F3;
+    --color-soldout: #F7F8F9;
+    --color-ink: #121417;
+    --color-ink-soft: #3D434B;
+    --color-ink-muted: #5A616B;
+    --color-ink-disabled: #4A5059;
+    --color-line: #E4E6EA;
+    --color-line-strong: #80878F;
+    --color-line-dashed: #A9AFB7;
+
+    /* Action and feedback */
+    --color-action: #26408F;
+    --color-action-hover: #1F357A;
+    --color-action-ring: #5B78D6;
+    --color-on-action: #FFFFFF;
+    --color-success: #2E7D4F;
+    --color-success-soft: #E7F2EC;
+    --color-success-ink: #1F5A39;
+    --color-stock-ok: #2E5A33;
+    --color-stock-low: #8A4B00;
+    --color-stock-out: #4A5059;
+
+    /* Sections: a tint for the shelf and chip, an ink for its title */
+    --color-fruta-tint: #E4EEE2;
+    --color-fruta-ink: #2E5A33;
+    --color-carne-tint: #F3E2DF;
+    --color-carne-ink: #7A2E25;
+    --color-lacteos-tint: #F3EDD6;
+    --color-lacteos-ink: #665413;
+    --color-panaderia-tint: #F0E6D8;
+    --color-panaderia-ink: #6B4720;
+    --color-despensa-tint: #E8E5F0;
+    --color-despensa-ink: #4A3E6B;
+    --color-bebidas-tint: #DFEAF1;
+    --color-bebidas-ink: #1E4A63;
+    --color-otros-tint: #ECEEF1;
+    --color-otros-ink: #3D434B;
+
+    /*
+     * Existing screens were built with the stone and emerald palettes.
+     * Re-pointing them at the system keeps every staff and admin page consistent
+     * until each one is redesigned: emerald becomes the action blue, stone the cool greys.
+     */
+    --color-emerald-50: #EEF1FA;
+    --color-emerald-100: #DCE3F5;
+    --color-emerald-200: #B9C6EA;
+    --color-emerald-300: #8FA3DC;
+    --color-emerald-400: #5B78D6;
+    --color-emerald-500: #3A57B8;
+    --color-emerald-600: #26408F;
+    --color-emerald-700: #1F357A;
+    --color-emerald-800: #1A2C63;
+    --color-emerald-900: #15234F;
+    --color-stone-50: #F5F6F7;
+    --color-stone-100: #F0F1F3;
+    --color-stone-200: #E4E6EA;
+    --color-stone-300: #C7CBD1;
+    --color-stone-400: #80878F;
+    --color-stone-500: #5A616B;
+    --color-stone-600: #4A5059;
+    --color-stone-700: #3D434B;
+    --color-stone-800: #2B3036;
+    --color-stone-900: #121417;
+    --color-stone-950: #0B0C0E;
+
+    /* Shape and elevation */
+    --radius-chip: 9px;
+    --radius-control: 12px;
+    --radius-card: 16px;
+    --radius-shelf: 24px;
+    --shadow-card: 0 1px 2px rgba(18, 20, 23, 0.06);
+    --shadow-selected: 0 0 0 1px #80878F, 0 1px 2px rgba(18, 20, 23, 0.12);
 }
 
 /* Hide Alpine elements until Alpine starts (no flash of open dropdowns). */
 [x-cloak] {
     display: none !important;
+}
+
+/* One visible focus ring for every control. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-action-ring);
+    outline-offset: 2px;
+}
+
+/* Shelves scroll sideways on phones; cards snap into place. */
+@media (max-width: 640px) {
+    .shelf-row {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 6px;
+    }
+
+    .shelf-row > * {
+        flex: 0 0 84%;
+        scroll-snap-align: start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
 }

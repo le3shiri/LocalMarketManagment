@@ -29,6 +29,27 @@ class AddToCart extends Component
         $this->compact = $compact;
     }
 
+    /** Changing the amount clears the previous "Añadido" confirmation. */
+    public function updatedQuantity(): void
+    {
+        $this->reset('success', 'message');
+    }
+
+    /** Unit stepper (+). Stock limits are checked by CartService when adding. */
+    public function increment(): void
+    {
+        $this->quantity += $this->product()->unit_type->step();
+        $this->updatedQuantity();
+    }
+
+    /** Unit stepper (−), never below one step. */
+    public function decrement(): void
+    {
+        $step = $this->product()->unit_type->step();
+        $this->quantity = max($step, $this->quantity - $step);
+        $this->updatedQuantity();
+    }
+
     public function add(CartService $cart)
     {
         if (! auth()->check()) {

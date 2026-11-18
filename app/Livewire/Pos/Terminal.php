@@ -4,6 +4,8 @@ namespace App\Livewire\Pos;
 
 use App\Enums\PaymentMethod;
 use App\Models\Product;
+use App\Services\SaleService;
+use InvalidArgumentException;
 use App\Support\SaleTotals;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -179,6 +181,24 @@ class Terminal extends Component
     {
         unset($this->lines[$productId]);
         $this->dispatch('focus-search');
+    }
+
+    /** Charge and close the sale, then show the ticket. */
+    public function confirmSale(SaleService $sales)
+    {
+        $payment = $this->validatePayment();
+
+        try {
+            $sale = $sales->complete($this->totals, $payment, auth()->user());
+        } catch (InvalidArgumentException $e) {
+            $this->message = $e->getMessage();
+
+            return null;
+        }
+
+        $this->clear();
+
+        return $this->redirectRoute('pos.tickets.show', ['sale' => $sale, 'nueva' => 1]);
     }
 
     public function clear(): void

@@ -130,6 +130,11 @@
                            class="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 font-mono uppercase">
                     @error('authCode') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 @endif
+
+                <button type="button" wire:click="confirmSale" wire:loading.attr="disabled"
+                        class="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
+                    Cobrar {{ Number::currency($this->totals->total, 'EUR', 'es') }}
+                </button>
             </x-card>
         @endunless
     </aside>

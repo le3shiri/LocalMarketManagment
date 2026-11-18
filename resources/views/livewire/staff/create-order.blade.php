@@ -119,6 +119,15 @@
                 </select>
                 @error('slot') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
 
+                <div class="mt-4 flex items-center gap-3 text-sm">
+                    <span class="font-medium text-stone-700">Pagará con</span>
+                    @foreach (\App\Enums\PaymentMethod::cases() as $method)
+                        <label class="flex items-center gap-1">
+                            <input type="radio" wire:model="payment_method" value="{{ $method->value }}" class="text-emerald-600"> {{ $method->label() }}
+                        </label>
+                    @endforeach
+                </div>
+
                 <div class="mt-4 space-y-1">
                     <label for="notes" class="block text-sm font-medium text-stone-700">Observaciones</label>
                     <textarea id="notes" wire:model="notes" rows="2" class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"></textarea>

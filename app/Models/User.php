@@ -28,6 +28,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /** Mirrors the column default so new instances are consistent before they are saved. */
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
     /** Permission names, memoised per request. */
     private ?Collection $permissionNames = null;
 
@@ -36,6 +41,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 

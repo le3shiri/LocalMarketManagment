@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -8,6 +9,11 @@ use Illuminate\Support\Facades\Route;
 | so an admin can re-shape what each role may do from the Roles screen.
 */
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('can:users.manage')->group(function () {
+        Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::patch('users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
+    });
+
     Route::middleware('can:roles.manage')->group(function () {
         Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
         Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');

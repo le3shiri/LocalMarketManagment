@@ -61,8 +61,8 @@ class ReportExportTest extends TestCase
         $csv = $this->csv('/admin/ventas/exportar?method=card');
 
         $this->assertStringContainsString('Ticket;Fecha;Cajero/a', $csv);
-        $this->assertStringContainsString('T-000002;"20/11/2026 12:00";Ana;0;Tarjeta;22,50', $csv);
-        $this->assertStringNotContainsString('T-000001', $csv);
+        $this->assertStringContainsString(Sale::orderBy('id')->skip(1)->first()->code.';"20/11/2026 12:00";Ana;0;Tarjeta;22,50', $csv);
+        $this->assertStringNotContainsString(Sale::orderBy('id')->first()->code, $csv);
     }
 
     public function test_orders_export_respects_the_channel_filter(): void
@@ -72,7 +72,7 @@ class ReportExportTest extends TestCase
 
         $csv = $this->csv('/admin/pedidos/exportar?channel=whatsapp');
 
-        $this->assertStringContainsString('LM-000001;"20/11/2026 12:00";WhatsApp;Pendiente;"Recogida en tienda"', $csv);
+        $this->assertStringContainsString(Order::firstWhere('contact_name', 'Marta')->code.';"20/11/2026 12:00";WhatsApp;Pendiente;"Recogida en tienda"', $csv);
         $this->assertStringContainsString('Marta', $csv);
         $this->assertStringNotContainsString('Pau', $csv);
     }

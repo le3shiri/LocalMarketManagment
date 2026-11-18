@@ -47,10 +47,10 @@ class CustomerOrderHistoryTest extends TestCase
 
     public function test_history_is_paginated(): void
     {
-        Order::factory()->count(12)->for($this->customer)->create();
+        $orders = Order::factory()->count(12)->for($this->customer)->create();
 
-        $this->actingAs($this->customer)->get('/pedidos')->assertSee('LM-000012')->assertDontSee('LM-000002');
-        $this->actingAs($this->customer)->get('/pedidos?page=2')->assertSee('LM-000001');
+        $this->actingAs($this->customer)->get('/pedidos')->assertSee($orders[11]->code)->assertDontSee($orders[1]->code);
+        $this->actingAs($this->customer)->get('/pedidos?page=2')->assertSee($orders[0]->code);
     }
 
     public function test_navigation_links_to_my_orders(): void

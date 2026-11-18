@@ -21,7 +21,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     });
 
     Route::middleware('can:products.manage')->group(function () {
-        Route::resource('products', ProductController::class)->only(['index', 'create', 'store']);
+        Route::resource('products', ProductController::class)->except(['show', 'destroy']);
     });
 
     Route::middleware('can:roles.manage')->group(function () {

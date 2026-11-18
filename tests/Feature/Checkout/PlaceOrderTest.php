@@ -60,10 +60,11 @@ class PlaceOrderTest extends TestCase
         $this->checkout()
             ->set('slot', '17:00-18:00')
             ->call('placeOrder')
-            ->assertRedirect(route('orders.show', 'LM-000001'));
+            ->assertRedirect(route('orders.show', Order::sole()));
 
         $order = Order::sole();
-        $this->assertSame('LM-000001', $order->code);
+        $this->assertSame(Order::codeFor($order->id), $order->code);
+        $this->assertMatchesRegularExpression('/^LM-\d{6}$/', $order->code);
         $this->assertSame(OrderStatus::Pending, $order->status);
         $this->assertSame(Fulfillment::Pickup, $order->fulfillment);
         $this->assertSame('2026-11-23', $order->slot_date->toDateString());
@@ -78,7 +79,8 @@ class PlaceOrderTest extends TestCase
         $this->customer->cartItems()->create(['product_id' => $this->product->id, 'quantity' => 1]);
         $this->checkout()->set('slot', '18:00-19:00')->call('placeOrder');
 
-        $this->assertSame(['LM-000001', 'LM-000002'], Order::orderBy('id')->pluck('code')->all());
+        $orders = Order::orderBy('id')->get();
+        $this->assertSame([Order::codeFor($orders[0]->id), Order::codeFor($orders[0]->id + 1)], $orders->pluck('code')->all());
     }
 
     public function test_delivery_requires_an_address_and_charges_the_fee(): void
@@ -145,7 +147,7 @@ class PlaceOrderTest extends TestCase
     {
         $this->checkout()->set('slot', '17:00-18:00')->call('placeOrder');
 
-        $this->actingAs($this->customer)->get('/pedidos/LM-000001')->assertOk()->assertSee('Arroz bomba');
-        $this->actingAs(User::factory()->create())->get('/pedidos/LM-000001')->assertNotFound();
+        $this->actingAs($this->customer)->get('/pedidos/'.Order::sole()->code)->assertOk()->assertSee('Arroz bomba');
+        $this->actingAs(User::factory()->create())->get('/pedidos/'.Order::sole()->code)->assertNotFound();
     }
 }

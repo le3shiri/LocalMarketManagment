@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/carrito', CartPage::class)->name('cart.index');
         Route::get('/checkout', Checkout::class)->name('checkout.index');
         Route::get('/pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('/pedidos/{order}/cancelar', [OrderController::class, 'cancel'])->name('orders.cancel');
     });
 });
 

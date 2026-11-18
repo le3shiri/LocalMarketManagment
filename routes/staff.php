@@ -10,4 +10,5 @@ Route::middleware(['auth', 'can:orders.manage'])->prefix('gestion')->name('staff
     Route::get('pedidos', [OrderController::class, 'index'])->name('orders.index');
     Route::get('pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('pedidos/{order}/estado', [OrderController::class, 'advance'])->name('orders.advance');
+    Route::post('pedidos/{order}/cancelar', [OrderController::class, 'cancel'])->name('orders.cancel');
 });

@@ -75,6 +75,17 @@
                 </x-card>
             @endif
 
+            @unless ($order->status->isFinal())
+                <x-card title="Cancelar pedido">
+                    <form method="POST" action="{{ route('staff.orders.cancel', $order) }}" class="space-y-3"
+                          onsubmit="return confirm({{ Js::from('¿Cancelar el pedido '.$order->code.'? El stock reservado se liberará.') }})">
+                        @csrf
+                        <x-input name="reason" label="Motivo (obligatorio)" required placeholder="Ej.: la clienta ha llamado para anularlo" />
+                        <x-button variant="danger" class="w-full">Cancelar pedido</x-button>
+                    </form>
+                </x-card>
+            @endunless
+
             <x-card title="Historial del pedido">
                 <ol class="space-y-3 border-l-2 border-stone-200 pl-4 text-sm">
                     @foreach ($order->statusChanges as $change)

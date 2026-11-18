@@ -70,6 +70,9 @@
                     @if (Route::has('admin.roles.index') && auth()->user()->can('roles.manage'))
                         <x-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">Roles</x-nav-link>
                     @endif
+                    @if (Route::has('admin.backups.index') && auth()->user()->can('backups.manage'))
+                        <x-nav-link :href="route('admin.backups.index')" :active="request()->routeIs('admin.backups.*')">Copias</x-nav-link>
+                    @endif
                     @if (Route::has('admin.audit.index') && auth()->user()->can('audit.view'))
                         <x-nav-link :href="route('admin.audit.index')" :active="request()->routeIs('admin.audit.*')">Historial</x-nav-link>
                     @endif

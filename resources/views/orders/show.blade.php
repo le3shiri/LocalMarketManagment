@@ -21,6 +21,7 @@
                 @if ($order->delivery_address)
                     <div class="sm:col-span-2"><dt class="text-stone-400">Dirección de entrega</dt><dd>{{ $order->delivery_address }}</dd></div>
                 @endif
+                <div><dt class="text-stone-400">Pago</dt><dd class="font-medium">{{ $order->payment_method->label() }} {{ $order->fulfillment === \App\Enums\Fulfillment::Delivery ? 'al recibirlo' : 'al recogerlo' }}</dd></div>
                 <div><dt class="text-stone-400">Contacto</dt><dd>{{ $order->contact_name }} · {{ $order->contact_phone }}</dd></div>
             </dl>
 

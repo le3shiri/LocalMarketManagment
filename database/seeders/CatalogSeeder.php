@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\UnitType;
 use App\Models\Category;
 use App\Models\Product;
+use App\Rules\Ean13;
 use Illuminate\Database\Seeder;
 
 /**
@@ -76,6 +77,14 @@ class CatalogSeeder extends Seeder
         ]);
     }
 
+    /** Stable, valid EAN-13 derived from the SKU. */
+    public static function demoBarcode(string $sku): string
+    {
+        $twelve = '84'.str_pad((string) (crc32($sku) % 10_000_000_000), 10, '0', STR_PAD_LEFT);
+
+        return $twelve.Ean13::checkDigit($twelve);
+    }
+
     public function run(): void
     {
         foreach (self::CATALOG as $order => [$name, $description, $products]) {
@@ -89,6 +98,8 @@ class CatalogSeeder extends Seeder
                     'unit_type' => $unit,
                     'is_perishable' => $perishable,
                     'location' => $location,
+                    // Packaged products carry an EAN-13 (Spanish 84 prefix); loose weighted ones are weighed instead.
+                    'barcode' => $unit === UnitType::Unit ? self::demoBarcode($sku) : null,
                 ]);
 
                 $this->seedStock($model);

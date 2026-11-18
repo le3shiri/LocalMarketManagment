@@ -11,6 +11,7 @@
 
                 <x-input name="name" label="Nombre" :value="$product->name" required />
                 <x-input name="sku" label="SKU (código interno)" :value="$product->sku" required />
+                <x-input name="barcode" label="Código de barras (EAN-13, opcional)" inputmode="numeric" maxlength="13" :value="$product->barcode" />
 
                 <div class="space-y-1">
                     <label for="category_id" class="block text-sm font-medium text-stone-700">Categoría</label>

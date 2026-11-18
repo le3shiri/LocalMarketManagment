@@ -25,5 +25,11 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(CatalogSeeder::class);
+
+        // Six weeks of shop activity so the dashboard, reports and rankings have data.
+        // Local demos only; set SEED_DEMO_ACTIVITY=false for an empty shop.
+        if (app()->environment('local') && env('SEED_DEMO_ACTIVITY', true)) {
+            $this->call(DemoActivitySeeder::class);
+        }
     }
 }

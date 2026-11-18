@@ -17,6 +17,14 @@
                     <div><dt class="text-stone-400">Cliente</dt><dd class="font-medium">{{ $order->contact_name }}</dd><dd>{{ $order->contact_phone }}</dd></div>
                     <div><dt class="text-stone-400">Modalidad</dt><dd class="font-medium">{{ $order->fulfillment->label() }}</dd>@if ($order->delivery_address)<dd>{{ $order->delivery_address }}</dd>@endif</div>
                     <div><dt class="text-stone-400">Franja</dt><dd class="font-medium">{{ $order->slot_date->format('d/m/Y') }}, {{ $order->slot }}</dd></div>
+                    <div>
+                        <dt class="text-stone-400">Pago</dt>
+                        @if ($order->payment)
+                            <dd class="font-medium text-emerald-700">Cobrado · {{ $order->payment->method->label() }} · {{ Number::currency((float) $order->payment->amount, 'EUR', 'es') }}</dd>
+                        @else
+                            <dd class="font-medium">{{ $order->payment_method->label() }} en la entrega</dd>
+                        @endif
+                    </div>
                 </dl>
                 @if ($order->creator)
                     <p class="mb-2 text-xs text-stone-500">Registrado por {{ $order->creator->name }}</p>
@@ -79,6 +87,15 @@
                                     @error("weights.{$item->id}") <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                             @endforeach
+                            <div class="space-y-1">
+                                <label for="payment_method" class="block text-sm font-medium text-stone-700">Cobrado con</label>
+                                <select id="payment_method" name="payment_method" class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                                    @foreach (\App\Enums\PaymentMethod::cases() as $method)
+                                        <option value="{{ $method->value }}" @selected($order->payment_method === $method)>{{ $method->label() }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-stone-500">Se registra el cobro del total final (con el peso real).</p>
+                            </div>
                         @endif
                         <x-input name="note" label="Nota (opcional)" />
                         <x-button class="w-full">{{ $order->status->actionLabel() }}</x-button>

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Events\OrderStatusChanged;
 use App\Exceptions\OrderTransitionException;
 use App\Models\AuditLog;
@@ -25,12 +26,13 @@ class OrderWorkflow
      * Move the order one step forward (pending → preparing → ready → delivered).
      *
      * @param  array<int, float>  $weights  order_item_id => real quantity, for weighted lines on delivery
+     * @param  PaymentMethod|null  $paidWith  how the customer actually paid on delivery (defaults to the chosen one)
      *
      * @throws OrderTransitionException
      */
-    public function advance(Order $order, OrderStatus $target, ?User $user, ?string $note = null, array $weights = []): Order
+    public function advance(Order $order, OrderStatus $target, ?User $user, ?string $note = null, array $weights = [], ?PaymentMethod $paidWith = null): Order
     {
-        return DB::transaction(function () use ($order, $target, $user, $note, $weights) {
+        return DB::transaction(function () use ($order, $target, $user, $note, $weights, $paidWith) {
             $order = $this->lock($order);
 
             if (! $order->status->canTransitionTo($target)) {
@@ -41,6 +43,14 @@ class OrderWorkflow
 
             if ($target === OrderStatus::Delivered) {
                 $this->deliver($order, $user, $weights);
+
+                // Charged on hand-over, with the final amount (real weights included).
+                $order->payment_method = $paidWith ?? $order->payment_method;
+                $order->payment()->create([
+                    'method' => $order->payment_method,
+                    'amount' => $order->total,
+                    'user_id' => $user?->id,
+                ]);
             }
 
             return $this->transition($order, $target, $user, $note);

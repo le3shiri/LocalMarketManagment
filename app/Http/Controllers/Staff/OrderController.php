@@ -41,10 +41,19 @@ class OrderController extends Controller
         $data = $request->validate([
             'status' => ['required', Rule::enum(OrderStatus::class)],
             'note' => ['nullable', 'string', 'max:255'],
-        ]);
+            'weights' => ['array'],
+            'weights.*' => ['nullable', 'numeric', 'gt:0', 'max:9999'],
+        ], [], ['weights.*' => 'peso real']);
+
+        // Only weighted lines of this order may get a real weight.
+        $weights = collect($data['weights'] ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->only($order->items()->where('unit_type', 'weight')->pluck('id')->all())
+            ->map(fn ($value) => (float) $value)
+            ->all();
 
         try {
-            $order = $workflow->advance($order, OrderStatus::from($data['status']), $request->user(), $data['note'] ?? null);
+            $order = $workflow->advance($order, OrderStatus::from($data['status']), $request->user(), $data['note'] ?? null, $weights);
         } catch (OrderTransitionException $e) {
             return back()->with('error', $e->getMessage());
         }

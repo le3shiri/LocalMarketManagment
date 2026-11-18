@@ -13,7 +13,7 @@ class StockBatch extends Model
     public const EXPIRED = 'expired';
     public const WITHDRAWN = 'withdrawn';
 
-    protected $fillable = ['product_id', 'lot_code', 'expires_at', 'quantity_received', 'quantity_remaining', 'status', 'received_by', 'reference'];
+    protected $fillable = ['product_id', 'lot_code', 'expires_at', 'quantity_received', 'quantity_remaining', 'status', 'alerted_on', 'received_by', 'reference'];
 
     protected $attributes = ['status' => self::ACTIVE];
 
@@ -21,6 +21,7 @@ class StockBatch extends Model
     {
         return [
             'expires_at' => 'date',
+            'alerted_on' => 'date',
             'quantity_received' => 'float',
             'quantity_remaining' => 'float',
         ];

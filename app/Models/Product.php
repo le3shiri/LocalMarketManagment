@@ -11,6 +11,7 @@ use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
@@ -56,6 +57,11 @@ class Product extends Model
 
         // Every product has exactly one stock row, starting at zero.
         static::created(fn (Product $product) => $product->stock()->create());
+    }
+
+    public function batches(): HasMany
+    {
+        return $this->hasMany(StockBatch::class);
     }
 
     public function stock(): HasOne

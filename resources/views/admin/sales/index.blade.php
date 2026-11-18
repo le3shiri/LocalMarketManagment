@@ -23,6 +23,7 @@
             </select>
             <x-button variant="secondary">Filtrar</x-button>
         </form>
+        <x-csv-link :href="route('admin.sales.export', request()->query())" />
     </div>
     @error('to') <p class="mb-3 text-xs text-red-600">{{ $message }}</p> @enderror
 

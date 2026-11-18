@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Support\CsvExport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -36,23 +37,15 @@ class StockMovementController extends Controller
     {
         $query = $this->query($this->filters($request))->with(['product', 'user']);
 
-        return response()->streamDownload(function () use ($query) {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel shows accents correctly
-            fputcsv($out, ['Fecha', 'Producto', 'SKU', 'Tipo', 'Tienda', 'Online', 'Reservado', 'Existencias tras', 'Referencia', 'Motivo', 'Responsable'], ';');
-
-            $query->chunk(500, function ($movements) use ($out) {
-                foreach ($movements as $m) {
-                    fputcsv($out, [
-                        $m->created_at->format('Y-m-d H:i'), $m->product?->name, $m->product?->sku, $m->type->label(),
-                        $this->number($m->store_delta), $this->number($m->online_delta), $this->number($m->reserved_delta),
-                        $this->number($m->on_hand_after), $m->reference, $m->reason, $m->user?->name ?? 'Sistema',
-                    ], ';');
-                }
-            });
-
-            fclose($out);
-        }, 'movimientos-stock-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+        return CsvExport::download('movimientos-stock',
+            ['Fecha', 'Producto', 'SKU', 'Tipo', 'Tienda', 'Online', 'Reservado', 'Existencias tras', 'Referencia', 'Motivo', 'Responsable'],
+            fn ($write) => $query->chunk(500, fn ($movements) => $movements->each(fn ($m) => $write([
+                $m->created_at, $m->product?->name, $m->product?->sku, $m->type,
+                $m->store_delta, $m->online_delta, $m->reserved_delta, $m->on_hand_after,
+                $m->reference, $m->reason, $m->user?->name ?? 'Sistema',
+            ]))),
+            'movimientos de stock',
+        );
     }
 
     private function filters(Request $request): array
@@ -75,10 +68,5 @@ class StockMovementController extends Controller
             ->when($filters['from'] ?? null, fn ($q, $from) => $q->whereDate('created_at', '>=', $from))
             ->when($filters['to'] ?? null, fn ($q, $to) => $q->whereDate('created_at', '<=', $to))
             ->latest('id');
-    }
-
-    private function number(float $value): string
-    {
-        return str_replace('.', ',', rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.'));
     }
 }

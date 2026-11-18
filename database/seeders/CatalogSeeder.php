@@ -100,6 +100,8 @@ class CatalogSeeder extends Seeder
                     'location' => $location,
                     // Packaged products carry an EAN-13 (Spanish 84 prefix); loose weighted ones are weighed instead.
                     'barcode' => $unit === UnitType::Unit ? self::demoBarcode($sku) : null,
+                    // Basic food (fruit, veg, bread, eggs, milk) is 4 %; the rest of the food 10 %.
+                    'vat_rate' => preg_match('/^(FRU|PAN)-|^LAC-00[123]$/', $sku) ? 4 : 10,
                 ]);
 
                 $this->seedStock($model);

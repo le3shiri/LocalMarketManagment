@@ -19,6 +19,7 @@ class ProductRequest extends FormRequest
         $this->merge([
             'sku' => strtoupper(trim((string) $this->sku)),
             'barcode' => preg_replace('/\s+/', '', (string) $this->barcode) ?: null,
+            'vat_rate' => $this->vat_rate ?? 10, // most groceries are 10 %
         ]);
     }
 
@@ -31,6 +32,7 @@ class ProductRequest extends FormRequest
             'barcode' => ['nullable', 'string', new Ean13, Rule::unique('products')->ignore($this->route('product'))],
             'description' => ['nullable', 'string', 'max:2000'],
             'price' => ['required', 'numeric', 'gt:0', 'max:99999', 'decimal:0,2'],
+            'vat_rate' => ['required', 'integer', Rule::in([4, 10, 21])],
             'unit_type' => ['required', Rule::enum(UnitType::class)],
             'is_perishable' => ['boolean'],
             'location' => ['nullable', 'string', 'max:60'],
@@ -42,7 +44,7 @@ class ProductRequest extends FormRequest
     {
         return [
             'category_id' => 'categoría', 'name' => 'nombre', 'sku' => 'SKU', 'barcode' => 'código de barras', 'description' => 'descripción',
-            'price' => 'precio', 'unit_type' => 'tipo de venta', 'location' => 'ubicación', 'image' => 'imagen',
+            'price' => 'precio', 'vat_rate' => 'IVA', 'unit_type' => 'tipo de venta', 'location' => 'ubicación', 'image' => 'imagen',
         ];
     }
 

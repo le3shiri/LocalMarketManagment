@@ -49,6 +49,9 @@
                     @if (Route::has('admin.orders.index') && auth()->user()->can('orders.supervise'))
                         <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">Supervisión</x-nav-link>
                     @endif
+                    @if (Route::has('admin.sales.index') && auth()->user()->can('sales.view'))
+                        <x-nav-link :href="route('admin.sales.index')" :active="request()->routeIs('admin.sales.*')">Ventas</x-nav-link>
+                    @endif
                     @if (Route::has('warehouse.stock.index') && auth()->user()->can('stock.view'))
                         <x-nav-link :href="route('warehouse.stock.index')" :active="request()->routeIs('warehouse.*')">Almacén</x-nav-link>
                     @endif

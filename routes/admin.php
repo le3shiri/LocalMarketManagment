@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderSupervisionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('pedidos', [OrderSupervisionController::class, 'index'])->middleware('can:orders.supervise')->name('orders.index');
 
-    Route::get('historial',[AuditLogController::class, 'index'])->middleware('can:audit.view')->name('audit.index');
+    Route::get('ventas', [SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
+
+    Route::get('historial', [AuditLogController::class, 'index'])->middleware('can:audit.view')->name('audit.index');
 
     Route::middleware('can:roles.manage')->group(function () {
         Route::get('roles', [RoleController::class, 'index'])->name('roles.index');

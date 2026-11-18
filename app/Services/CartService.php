@@ -27,7 +27,11 @@ class CartService
         $this->assertValidQuantity($product, $quantity);
 
         $item = $user->cartItems()->firstOrNew(['product_id' => $product->id]);
-        $item->quantity = round(($item->quantity ?? 0) + $quantity, 3);
+        $newQuantity = round(($item->quantity ?? 0) + $quantity, 3);
+
+        $this->assertAvailable($product, $newQuantity, alreadyInCart: $item->quantity ?? 0);
+
+        $item->quantity = $newQuantity;
         $item->save();
 
         return $item;
@@ -44,6 +48,46 @@ class CartService
         if (! $product->is_active) {
             throw new CartException("«{$product->name}» ya no está a la venta.");
         }
+    }
+
+    /**
+     * Lines whose quantity is no longer covered by the online stock (it changed after
+     * the customer added them). Keyed by cart item id => units still available.
+     *
+     * @return array<int, float>
+     */
+    public function shortages(User $user): array
+    {
+        return $this->items($user)
+            ->filter(fn (CartItem $item) => $item->quantity > $item->product->stock->available_online)
+            ->mapWithKeys(fn (CartItem $item) => [$item->id => $item->product->stock->available_online])
+            ->all();
+    }
+
+    /**
+     * The cart may never hold more than the online channel can sell (stock online - reserved).
+     *
+     * @throws CartException
+     */
+    protected function assertAvailable(Product $product, float $quantity, float $alreadyInCart = 0): void
+    {
+        $available = $product->stock()->first()?->available_online ?? 0;
+
+        if ($quantity <= $available) {
+            return;
+        }
+
+        if ($available <= 0) {
+            throw new CartException("«{$product->name}» está agotado online.");
+        }
+
+        $message = "Solo quedan {$product->formatQuantity($available)} de «{$product->name}».";
+
+        if ($alreadyInCart > 0) {
+            $message .= " Ya tienes {$product->formatQuantity($alreadyInCart)} en el carrito.";
+        }
+
+        throw new CartException($message);
     }
 
     /** @throws CartException */

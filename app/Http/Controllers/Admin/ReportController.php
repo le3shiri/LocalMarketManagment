@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Services\Reports\SalesReport;
+use App\Services\Reports\TopProducts;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -42,6 +44,39 @@ class ReportController extends Controller
             }
             fclose($out);
         }, "informe-ventas-{$from->format('Ymd')}-{$to->format('Ymd')}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function topProducts(Request $request, TopProducts $top): View
+    {
+        [$from, $to] = $this->period($request);
+        $filters = $this->topFilters($request);
+
+        return view('admin.reports.top-products', [
+            'from' => $from,
+            'to' => $to,
+            'filters' => $filters,
+            'rows' => $top->build($from, $to, $filters['channel'], $filters['category'], $filters['sort'], $filters['limit']),
+            'channels' => TopProducts::CHANNELS,
+            'categories' => Category::ordered()->get(['id', 'name']),
+        ]);
+    }
+
+    /** @return array{channel: string, category: ?int, sort: string, limit: int} */
+    private function topFilters(Request $request): array
+    {
+        $data = $request->validate([
+            'channel' => ['nullable', Rule::in(array_keys(TopProducts::CHANNELS))],
+            'category' => ['nullable', 'integer', 'exists:categories,id'],
+            'sort' => ['nullable', Rule::in(['revenue', 'quantity'])],
+            'limit' => ['nullable', 'integer', Rule::in([10, 20, 50])],
+        ]);
+
+        return [
+            'channel' => $data['channel'] ?? 'all',
+            'category' => isset($data['category']) ? (int) $data['category'] : null,
+            'sort' => $data['sort'] ?? 'revenue',
+            'limit' => (int) ($data['limit'] ?? 20),
+        ];
     }
 
     /** @return array{0: CarbonImmutable, 1: CarbonImmutable, 2: string} */

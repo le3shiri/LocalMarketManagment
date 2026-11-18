@@ -14,3 +14,4 @@ Artisan::command('inspire', function () {
 */
 Schedule::command('stock:block-expired')->dailyAt('00:05')->withoutOverlapping();
 Schedule::command('stock:expiry-alerts')->dailyAt('07:30')->withoutOverlapping(); // before opening
+Schedule::command('backup:run')->dailyAt('02:00')->withoutOverlapping();

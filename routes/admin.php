@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderSupervisionController;
@@ -33,6 +34,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('pedidos', [OrderSupervisionController::class, 'index'])->middleware('can:orders.supervise')->name('orders.index');
 
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
+
+    Route::middleware('can:backups.manage')->group(function () {
+        Route::get('copias', [BackupController::class, 'index'])->name('backups.index');
+        Route::post('copias', [BackupController::class, 'store'])->name('backups.store');
+        Route::get('copias/{name}', [BackupController::class, 'download'])->where('name', '[A-Za-z0-9.\-]+')->name('backups.download');
+    });
 
     Route::middleware('can:reports.view')->group(function () {
         Route::get('informes', [ReportController::class, 'index'])->name('reports.index');

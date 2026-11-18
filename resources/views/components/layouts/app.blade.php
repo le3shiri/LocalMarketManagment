@@ -22,60 +22,9 @@
                 @endif
 
                 @auth
-                    @if (Route::has('admin.dashboard') && auth()->user()->can('dashboard.view'))
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard', 'admin.reports.*')">Panel</x-nav-link>
-                    @endif
-                    @if (Route::has('cart.index') && auth()->user()->can('cart.use'))
-                        <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*', 'checkout.*')">
-                            Carrito
-                            @php($cartCount = auth()->user()->cartItems()->count())
-                            @if ($cartCount > 0)
-                                <span class="ml-1 rounded-full bg-emerald-600 px-1.5 text-xs text-white">{{ $cartCount }}</span>
-                            @endif
-                        </x-nav-link>
-                    @endif
-                    @if (Route::has('orders.index') && auth()->user()->can('cart.use'))
-                        <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">Mis pedidos</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.products.index') && auth()->user()->can('products.manage'))
-                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">Productos</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.categories.index') && auth()->user()->can('categories.manage'))
-                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">Categorías</x-nav-link>
-                    @endif
-                    @if (Route::has('pos.terminal') && auth()->user()->can('pos.use'))
-                        <x-nav-link :href="route('pos.terminal')" :active="request()->routeIs('pos.*')">Caja</x-nav-link>
-                    @endif
-                    @if (Route::has('staff.orders.index') && auth()->user()->can('orders.manage'))
-                        <x-nav-link :href="route('staff.orders.index')" :active="request()->routeIs('staff.orders.*')">Pedidos</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.orders.index') && auth()->user()->can('orders.supervise'))
-                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">Supervisión</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.sales.index') && auth()->user()->can('sales.view'))
-                        <x-nav-link :href="route('admin.sales.index')" :active="request()->routeIs('admin.sales.*')">Ventas</x-nav-link>
-                    @endif
-                    @if (Route::has('warehouse.stock.index') && auth()->user()->can('stock.view'))
-                        <x-nav-link :href="route('warehouse.stock.index')" :active="request()->routeIs('warehouse.*')">
-                            Almacén
-                            @php($lowStock = \App\Models\ProductStock::belowMinimum()->count())
-                            @if ($lowStock > 0)
-                                <span class="ml-1 rounded-full bg-amber-500 px-1.5 text-xs text-white" title="Productos bajo mínimo" data-low-stock>{{ $lowStock }}</span>
-                            @endif
-                        </x-nav-link>
-                    @endif
-                    @if (Route::has('admin.users.index') && auth()->user()->can('users.manage'))
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">Usuarios</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.roles.index') && auth()->user()->can('roles.manage'))
-                        <x-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">Roles</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.backups.index') && auth()->user()->can('backups.manage'))
-                        <x-nav-link :href="route('admin.backups.index')" :active="request()->routeIs('admin.backups.*')">Copias</x-nav-link>
-                    @endif
-                    @if (Route::has('admin.audit.index') && auth()->user()->can('audit.view'))
-                        <x-nav-link :href="route('admin.audit.index')" :active="request()->routeIs('admin.audit.*')">Historial</x-nav-link>
-                    @endif
+                    @foreach (\App\Support\Navigation::for(auth()->user()) as $group)
+                        <x-nav-group :group="$group" />
+                    @endforeach
 
                     <span class="mx-2 h-5 w-px bg-stone-200"></span>
                     @if (Route::has('notifications.index'))

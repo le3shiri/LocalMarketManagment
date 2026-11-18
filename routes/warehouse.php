@@ -21,6 +21,7 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
         Route::get('productos/{product}/lotes', [BatchController::class, 'index'])->name('batches.index');
         Route::get('caducidades', [ExpiryController::class, 'index'])->name('expiry.index');
         Route::get('mermas', [WriteOffController::class, 'index'])->name('write-offs.index');
+        Route::get('mermas/exportar', [WriteOffController::class, 'export'])->name('write-offs.export');
     });
 
     Route::middleware('can:stock.entry')->group(function () {

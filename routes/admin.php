@@ -32,6 +32,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     });
 
     Route::get('pedidos', [OrderSupervisionController::class, 'index'])->middleware('can:orders.supervise')->name('orders.index');
+    Route::get('pedidos/exportar', [OrderSupervisionController::class, 'export'])->middleware('can:orders.supervise')->name('orders.export');
 
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
 
@@ -44,9 +45,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('can:reports.view')->group(function () {
         Route::get('informes', [ReportController::class, 'index'])->name('reports.index');
         Route::get('informes/exportar', [ReportController::class, 'export'])->name('reports.export');
+        Route::get('informes/mas-vendidos', [ReportController::class, 'topProducts'])->name('reports.top');
+        Route::get('informes/mas-vendidos/exportar', [ReportController::class, 'exportTopProducts'])->name('reports.top.export');
     });
 
-    Route::get('ventas',[SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
+    Route::get('ventas', [SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
+    Route::get('ventas/exportar', [SalesReportController::class, 'export'])->middleware('can:sales.view')->name('sales.export');
 
     Route::get('historial', [AuditLogController::class, 'index'])->middleware('can:audit.view')->name('audit.index');
 

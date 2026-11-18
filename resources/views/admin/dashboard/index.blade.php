@@ -73,6 +73,22 @@
             <p class="mt-2 text-xs text-stone-500">Total 14 días: {{ Number::currency($daily->sum(), 'EUR', 'es') }} · Caja + pedidos cobrados − devoluciones.</p>
         </x-card>
 
+        <x-card title="Más vendidos (30 días)" class="lg:col-span-2">
+            <ol class="space-y-2 text-sm" data-top-products>
+                @forelse ($topProducts as $row)
+                    <li class="flex items-center justify-between gap-3">
+                        <span><span class="mr-2 font-semibold text-stone-400">{{ $row['rank'] }}</span>{{ $row['name'] }}</span>
+                        <span class="whitespace-nowrap text-stone-600">{{ Number::currency($row['revenue'], 'EUR', 'es') }}</span>
+                    </li>
+                @empty
+                    <li class="text-stone-500">Todavía no hay ventas en los últimos 30 días.</li>
+                @endforelse
+            </ol>
+            @if (Route::has('admin.reports.top'))
+                <a href="{{ route('admin.reports.top') }}" class="mt-3 inline-block text-sm font-medium text-emerald-700 hover:underline">Ver ranking completo</a>
+            @endif
+        </x-card>
+
         <x-card title="Alertas de almacén">
             <ul class="space-y-3 text-sm">
                 <li class="flex items-center justify-between">

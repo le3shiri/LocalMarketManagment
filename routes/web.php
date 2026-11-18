@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pedidos', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/pedidos/{order}/cancelar', [OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('/pedidos/{order}/repetir', [OrderController::class, 'repeat'])->name('orders.repeat');
     });
 });
 

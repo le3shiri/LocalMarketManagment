@@ -14,7 +14,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use App\Support\CsvExport;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Losses (mermas): record them and see what they cost by type and period.
@@ -45,6 +47,29 @@ class WriteOffController extends Controller
             'products' => Product::with(['stock', 'batches' => fn ($q) => $q->available()])->orderBy('name')->get(),
             'types' => WriteOffType::cases(),
         ]);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $filters = $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date', 'after_or_equal:from'],
+            'type' => ['nullable', Rule::enum(WriteOffType::class)],
+        ]);
+        $from = CarbonImmutable::parse($filters['from'] ?? today()->startOfMonth())->startOfDay();
+        $to = CarbonImmutable::parse($filters['to'] ?? today())->endOfDay();
+
+        $query = WriteOff::with(['product', 'batch', 'user'])->whereBetween('created_at', [$from, $to])
+            ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('type', $type))->orderBy('id');
+
+        return CsvExport::download('mermas',
+            ['Fecha', 'Producto', 'Tipo', 'Origen', 'Lote', 'Cantidad', 'Valor', 'Observaciones', 'Responsable'],
+            fn ($write) => $query->chunk(500, fn ($rows) => $rows->each(fn ($w) => $write([
+                $w->created_at, $w->product->name, $w->type, $w->channel === 'online' ? 'Online' : 'Tienda', $w->batch?->lot_code,
+                $w->quantity, CsvExport::money($w->value), $w->notes, $w->user?->name,
+            ]))),
+            "mermas {$from->format('d/m/Y')}–{$to->format('d/m/Y')}",
+        );
     }
 
     public function store(Request $request, WriteOffService $writeOffs): RedirectResponse

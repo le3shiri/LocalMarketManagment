@@ -22,6 +22,15 @@
                         <div class="min-w-0 flex-1">
                             <a href="{{ route('catalog.show', $item->product) }}" class="font-medium text-stone-900 hover:text-emerald-700">{{ $item->product->name }}</a>
                             <p class="text-xs text-stone-500">{{ $item->product->formatted_price }}</p>
+                            @isset($shortages[$item->id])
+                                <p class="mt-1 text-xs font-medium text-red-600">
+                                    @if ($shortages[$item->id] > 0)
+                                        Solo quedan {{ $item->product->formatQuantity($shortages[$item->id]) }}: ajusta la cantidad.
+                                    @else
+                                        Se ha agotado mientras comprabas.
+                                    @endif
+                                </p>
+                            @endisset
                         </div>
                         <p class="w-20 text-right text-sm">{{ $item->product->formatQuantity($item->quantity) }}</p>
                         <p class="w-24 text-right font-medium">{{ Number::currency($item->line_total, 'EUR', 'es') }}</p>

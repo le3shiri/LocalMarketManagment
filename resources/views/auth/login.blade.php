@@ -6,8 +6,8 @@
                 <x-input name="email" label="Email" type="email" autocomplete="username" required autofocus />
                 <x-input name="password" label="Contraseña" type="password" autocomplete="current-password" required />
 
-                <label class="flex items-center gap-2 text-sm text-stone-600">
-                    <input type="checkbox" name="remember" class="rounded border-stone-300 text-emerald-600">
+                <label class="flex items-center gap-2 text-sm text-ink-soft">
+                    <input type="checkbox" name="remember" class="h-5 w-5 rounded border-line-strong accent-action">
                     Recordarme
                 </label>
 
@@ -15,9 +15,9 @@
             </form>
 
             @if (Route::has('register'))
-                <p class="mt-4 text-center text-sm text-stone-500">
+                <p class="mt-4 text-center text-sm text-ink-muted">
                     ¿Aún no tienes cuenta?
-                    <a href="{{ route('register') }}" class="font-medium text-emerald-700 hover:underline">Regístrate</a>
+                    <a href="{{ route('register') }}" class="font-medium text-action hover:underline">Regístrate</a>
                 </p>
             @endif
         </x-card>

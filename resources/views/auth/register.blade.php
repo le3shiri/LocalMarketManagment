@@ -12,9 +12,9 @@
                 <x-button class="w-full">Crear cuenta</x-button>
             </form>
 
-            <p class="mt-4 text-center text-sm text-stone-500">
+            <p class="mt-4 text-center text-sm text-ink-muted">
                 ¿Ya tienes cuenta?
-                <a href="{{ route('login') }}" class="font-medium text-emerald-700 hover:underline">Inicia sesión</a>
+                <a href="{{ route('login') }}" class="font-medium text-action hover:underline">Inicia sesión</a>
             </p>
         </x-card>
     </div>

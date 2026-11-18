@@ -11,13 +11,13 @@
     ['warehouse.transfers.create', 'Canales', 'stock.transfer'],
 ])
 
-<nav class="mb-6 flex flex-wrap gap-1 border-b border-stone-200 text-sm" aria-label="Almacén">
+<nav class="mb-6 flex flex-wrap gap-1 border-b border-line text-sm" aria-label="Almacén">
     @foreach ($tabs as [$route, $label, $permission])
         @if (Route::has($route) && auth()->user()->can($permission))
             <a href="{{ route($route) }}" @class([
                 '-mb-px border-b-2 px-3 py-2',
-                'border-emerald-600 font-medium text-emerald-700' => request()->routeIs(Str::beforeLast($route, '.').'.*'),
-                'border-transparent text-stone-500 hover:text-stone-800' => ! request()->routeIs(Str::beforeLast($route, '.').'.*'),
+                'border-action font-medium text-action' => request()->routeIs(Str::beforeLast($route, '.').'.*'),
+                'border-transparent text-ink-muted hover:text-ink' => ! request()->routeIs(Str::beforeLast($route, '.').'.*'),
             ])>{{ $label }}</a>
         @endif
     @endforeach

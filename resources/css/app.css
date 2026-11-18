@@ -30,6 +30,10 @@
     --color-action: #26408F;
     --color-action-hover: #1F357A;
     --color-action-ring: #5B78D6;
+    --color-action-soft: #EEF1FA;
+    --color-action-soft-hover: #DCE3F5;
+    --color-warn-soft: #FBF3E8;
+    --color-stock-low-hover: #713D00;
     --color-on-action: #FFFFFF;
     --color-success: #2E7D4F;
     --color-success-soft: #E7F2EC;

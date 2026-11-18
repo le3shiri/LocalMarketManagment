@@ -7,8 +7,8 @@
             <form method="POST" action="{{ route('warehouse.entries.store') }}" class="space-y-4">
                 @csrf
                 <div class="space-y-1">
-                    <label for="product_id" class="block text-sm font-medium text-stone-700">Producto</label>
-                    <select id="product_id" name="product_id" required class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                    <label for="product_id" class="block text-sm font-medium text-ink-soft">Producto</label>
+                    <select id="product_id" name="product_id" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         <option value="">Elige un producto…</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}" @selected(old('product_id', $selected) == $product->id)>
@@ -23,13 +23,13 @@
                     <x-input name="store_qty" label="Para tienda" inputmode="decimal" value="0" required />
                     <x-input name="online_qty" label="Para online" inputmode="decimal" value="0" required />
                 </div>
-                <p class="text-xs text-stone-500">Propuesta inicial: entre el 20 % y el 30 % para el canal online, menos en frescos.</p>
+                <p class="text-xs text-ink-muted">Propuesta inicial: entre el 20 % y el 30 % para el canal online, menos en frescos.</p>
 
                 <div class="grid grid-cols-2 gap-3">
                     <x-input name="lot_code" label="Lote" placeholder="Ej.: L2611-A" />
                     <x-input name="expires_at" label="Caducidad" type="date" :min="today()->toDateString()" />
                 </div>
-                <p class="text-xs text-stone-500">Lote y caducidad son obligatorios en productos perecederos.</p>
+                <p class="text-xs text-ink-muted">Lote y caducidad son obligatorios en productos perecederos.</p>
 
                 <x-input name="reference" label="Albarán / referencia del proveedor" />
                 <x-input name="reason" label="Observaciones" />
@@ -39,12 +39,12 @@
         </x-card>
 
         <x-card title="Últimos movimientos" class="lg:col-span-3">
-            <ul class="divide-y divide-stone-100 text-sm">
+            <ul class="divide-y divide-line text-sm">
                 @forelse ($recent as $movement)
                     <li class="flex items-start justify-between gap-4 py-2">
                         <div>
-                            <p class="font-medium text-stone-900">{{ $movement->product->name }}</p>
-                            <p class="text-xs text-stone-500">
+                            <p class="font-medium text-ink">{{ $movement->product->name }}</p>
+                            <p class="text-xs text-ink-muted">
                                 {{ $movement->type->label() }} · {{ $movement->user?->name ?? 'Sistema' }} · {{ $movement->created_at->diffForHumans() }}
                                 @if ($movement->reference) · {{ $movement->reference }} @endif
                             </p>
@@ -55,7 +55,7 @@
                         </p>
                     </li>
                 @empty
-                    <li class="py-6 text-center text-stone-500">Todavía no hay movimientos.</li>
+                    <li class="py-6 text-center text-ink-muted">Todavía no hay movimientos.</li>
                 @endforelse
             </ul>
         </x-card>

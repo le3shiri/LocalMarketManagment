@@ -6,8 +6,8 @@
             <form method="POST" action="{{ route('warehouse.exits.store') }}" class="space-y-4">
                 @csrf
                 <div class="space-y-1">
-                    <label for="product_id" class="block text-sm font-medium text-stone-700">Producto</label>
-                    <select id="product_id" name="product_id" required class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                    <label for="product_id" class="block text-sm font-medium text-ink-soft">Producto</label>
+                    <select id="product_id" name="product_id" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         <option value="">Elige un producto…</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}" @selected(old('product_id', $selected) == $product->id)>
@@ -19,16 +19,16 @@
                 </div>
 
                 <fieldset class="flex gap-4 text-sm">
-                    <legend class="mb-1 block text-sm font-medium text-stone-700">Sale de</legend>
-                    <label class="flex items-center gap-1"><input type="radio" name="channel" value="store" @checked(old('channel', 'store') === 'store') class="text-emerald-600"> Tienda</label>
-                    <label class="flex items-center gap-1"><input type="radio" name="channel" value="online" @checked(old('channel') === 'online') class="text-emerald-600"> Stock online (sin reservar)</label>
+                    <legend class="mb-1 block text-sm font-medium text-ink-soft">Sale de</legend>
+                    <label class="flex items-center gap-1"><input type="radio" name="channel" value="store" @checked(old('channel', 'store') === 'store') class="accent-action"> Tienda</label>
+                    <label class="flex items-center gap-1"><input type="radio" name="channel" value="online" @checked(old('channel') === 'online') class="accent-action"> Stock online (sin reservar)</label>
                 </fieldset>
 
                 <x-input name="quantity" label="Cantidad" inputmode="decimal" required />
 
                 <div class="space-y-1">
-                    <label for="reason" class="block text-sm font-medium text-stone-700">Motivo</label>
-                    <select id="reason" name="reason" required class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                    <label for="reason" class="block text-sm font-medium text-ink-soft">Motivo</label>
+                    <select id="reason" name="reason" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         @foreach ($reasons as $reason)
                             <option value="{{ $reason->value }}" @selected(old('reason') === $reason->value)>{{ $reason->label() }}</option>
                         @endforeach
@@ -43,17 +43,17 @@
         </x-card>
 
         <x-card title="Últimas salidas" class="lg:col-span-3">
-            <ul class="divide-y divide-stone-100 text-sm">
+            <ul class="divide-y divide-line text-sm">
                 @forelse ($recent as $movement)
                     <li class="flex justify-between gap-4 py-2">
                         <div>
                             <p class="font-medium">{{ $movement->product->name }}</p>
-                            <p class="text-xs text-stone-500">{{ $movement->reason }} · {{ $movement->user?->name }} · {{ $movement->created_at->diffForHumans() }}</p>
+                            <p class="text-xs text-ink-muted">{{ $movement->reason }} · {{ $movement->user?->name }} · {{ $movement->created_at->diffForHumans() }}</p>
                         </div>
                         <p class="whitespace-nowrap text-red-600">{{ $movement->product->formatQuantity($movement->store_delta + $movement->online_delta) }}</p>
                     </li>
                 @empty
-                    <li class="py-6 text-center text-stone-500">Todavía no hay salidas.</li>
+                    <li class="py-6 text-center text-ink-muted">Todavía no hay salidas.</li>
                 @endforelse
             </ul>
         </x-card>

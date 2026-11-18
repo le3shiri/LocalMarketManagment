@@ -1,6 +1,6 @@
 <x-layouts.app :title="$user->exists ? 'Editar usuario' : 'Nuevo usuario'">
     <div class="mx-auto max-w-2xl">
-        <a href="{{ route('admin.users.index') }}" class="text-sm text-stone-500 hover:underline">← Volver a usuarios</a>
+        <a href="{{ route('admin.users.index') }}" class="text-sm text-ink-muted hover:underline">← Volver a usuarios</a>
 
         <x-card :title="$user->exists ? 'Editar '.$user->name : 'Nuevo usuario'" class="mt-3">
             <form method="POST" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" class="grid gap-4 sm:grid-cols-2">
@@ -13,8 +13,8 @@
                 <x-input name="address" label="Dirección" :value="$user->address" />
 
                 <div class="space-y-1">
-                    <label for="role_id" class="block text-sm font-medium text-stone-700">Rol</label>
-                    <select id="role_id" name="role_id" class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                    <label for="role_id" class="block text-sm font-medium text-ink-soft">Rol</label>
+                    <select id="role_id" name="role_id" class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         @foreach ($roles as $role)
                             <option value="{{ $role->id }}" @selected(old('role_id', $user->role_id) == $role->id)>{{ $role->label }}</option>
                         @endforeach
@@ -25,7 +25,7 @@
                 <div class="flex items-end pb-2">
                     <input type="hidden" name="is_active" value="0">
                     <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" name="is_active" value="1" class="rounded border-stone-300 text-emerald-600" @checked(old('is_active', $user->is_active))>
+                        <input type="checkbox" name="is_active" value="1" class="h-5 w-5 rounded border-line-strong accent-action" @checked(old('is_active', $user->is_active))>
                         Cuenta activa
                     </label>
                     @error('is_active') <p class="ml-2 text-xs text-red-600">{{ $message }}</p> @enderror

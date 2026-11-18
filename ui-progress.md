@@ -3,7 +3,7 @@
 - **Canvas:** https://claude.ai/artifact/B4HimDSdyjLrjLqad8mSfg
 - **Design system:** https://claude.ai/artifact/JLFrP6bAab7hy3GRXveyLn (LocalMarket design system, installed on the canvas)
 - **Brief:** [design-brief.md](design-brief.md)
-- **Current round:** Round 4 done (system locked). Next: Round 5 · Roll out, starting with the Cart (key screen, 3 variations).
+- **Current round:** Round 4 done (system locked) and applied to the Blade views (PR #71, merged into develop). Next: Round 5 · Roll out, starting with the Cart (key screen, 3 variations).
 
 ## Round 4 · Design system
 

@@ -18,6 +18,7 @@ class OrderService
     public function __construct(
         private readonly CartService $cart,
         private readonly Slots $slots,
+        private readonly StockService $stock,
     ) {}
 
     /**
@@ -70,6 +71,13 @@ class OrderService
                 'quantity' => $item->quantity,
                 'line_total' => $item->line_total,
             ])->all());
+
+            // Same transaction: if any line can't be reserved the order is rolled back entirely.
+            $this->stock->reserve(
+                $items->mapWithKeys(fn (CartItem $item) => [$item->product_id => $item->quantity])->all(),
+                $user,
+                $order->code,
+            );
 
             $this->cart->clear($user);
 

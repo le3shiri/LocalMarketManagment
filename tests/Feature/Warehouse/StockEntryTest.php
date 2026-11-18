@@ -30,6 +30,8 @@ class StockEntryTest extends TestCase
             'product_id' => $product->id,
             'store_qty' => '14',
             'online_qty' => '5,5',
+            'lot_code' => 'L-TOM-01', // perishable: batch data required since SUP-51
+            'expires_at' => now()->addDays(5)->toDateString(),
             'reference' => 'ALB-2026-118',
         ])->assertSessionHasNoErrors()->assertRedirect(route('warehouse.entries.create'));
 

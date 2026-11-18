@@ -7,6 +7,7 @@ use App\Exceptions\InsufficientStockException;
 use App\Models\AuditLog;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\StockBatch;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -21,13 +22,13 @@ class StockService
     /**
      * Register received goods and split them between the store and the online channel.
      */
-    public function registerEntry(Product $product, float $storeQty, float $onlineQty, User $user, ?string $reference = null, ?string $reason = null): ProductStock
+    public function registerEntry(Product $product, float $storeQty, float $onlineQty, User $user, ?string $reference = null, ?string $reason = null, ?string $lotCode = null, ?string $expiresAt = null): ProductStock
     {
         if ($storeQty < 0 || $onlineQty < 0 || $storeQty + $onlineQty <= 0) {
             throw new InvalidArgumentException('La entrada debe ser mayor que cero y sin cantidades negativas.');
         }
 
-        return DB::transaction(function () use ($product, $storeQty, $onlineQty, $user, $reference, $reason) {
+        return DB::transaction(function () use ($product, $storeQty, $onlineQty, $user, $reference, $reason, $lotCode, $expiresAt) {
             $stock = $this->lock($product);
 
             $stock->store_qty += $storeQty;
@@ -36,6 +37,17 @@ class StockService
             $stock->save();
 
             $this->log($stock, MovementType::Entry, $user, store: $storeQty, online: $onlineQty, reference: $reference, reason: $reason);
+
+            // Every receipt is a batch; perishable ones carry their lot and expiry date.
+            StockBatch::create([
+                'product_id' => $product->id,
+                'lot_code' => $lotCode ?: ($reference ?: 'ENT-'.now()->format('Ymd-His')),
+                'expires_at' => $expiresAt,
+                'quantity_received' => $storeQty + $onlineQty,
+                'quantity_remaining' => $storeQty + $onlineQty,
+                'received_by' => $user->id,
+                'reference' => $reference,
+            ]);
 
             AuditLog::record('stock', "Entrada de {$product->formatQuantity($storeQty + $onlineQty)} de «{$product->name}»", $product, [
                 'tienda' => $storeQty, 'online' => $onlineQty, 'albarán' => $reference,
@@ -343,8 +355,31 @@ class StockService
         return ProductStock::where('product_id', $product->id)->lockForUpdate()->firstOrFail();
     }
 
-    protected function log(ProductStock $stock, MovementType $type, ?User $user, float $store = 0, float $online = 0, float $reserved = 0, ?string $reference = null, ?string $reason = null): void
+    /**
+     * Units that physically leave the shop (sale, delivery, exit, negative count) are taken
+     * from batches, first-expiring first (FEFO). Stock without batches is simply ignored.
+     */
+    protected function consumeBatches(int $productId, float $quantity): void
     {
+        foreach (StockBatch::where('product_id', $productId)->available()->lockForUpdate()->get() as $batch) {
+            if ($quantity <= 0.0005) {
+                break;
+            }
+
+            $taken = min($batch->quantity_remaining, $quantity);
+            $batch->quantity_remaining = round($batch->quantity_remaining - $taken, 3);
+            $batch->save();
+            $quantity = round($quantity - $taken, 3);
+        }
+    }
+
+    protected function log(ProductStock $stock, MovementType $type, ?User $user, float $store = 0, float $online = 0, float $reserved = 0, ?string $reference = null, ?string $reason = null, bool $consumeBatches = true): void
+    {
+        $leaving = -($store + $online);
+        if ($consumeBatches && $type !== MovementType::Transfer && $leaving > 0) {
+            $this->consumeBatches($stock->product_id, $leaving);
+        }
+
         StockMovement::create([
             'product_id' => $stock->product_id,
             'user_id' => $user?->id,

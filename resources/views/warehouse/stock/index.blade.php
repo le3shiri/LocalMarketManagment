@@ -54,7 +54,7 @@
                     @php($product = $stock->product)
                     <tr @class(['bg-amber-50' => $stock->is_below_minimum])>
                         <td class="px-4 py-3">
-                            <p class="font-medium text-stone-900">{{ $product->name }}</p>
+                            <a href="{{ route('warehouse.batches.index', $product) }}" class="font-medium text-stone-900 hover:text-emerald-700 hover:underline" title="Ver lotes">{{ $product->name }}</a>
                             <p class="text-xs text-stone-500">
                                 <span class="font-mono">{{ $product->sku }}</span> · {{ $product->category->name }}
                                 @if ($product->location) · {{ $product->location }} @endif

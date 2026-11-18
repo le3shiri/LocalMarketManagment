@@ -7,6 +7,21 @@
         @endif
     </div>
 
+    @if ($repeat = session('repeat'))
+        @if ($repeat['adjusted'] || $repeat['skipped'])
+            <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status" data-repeat-report>
+                @if ($repeat['adjusted'])
+                    <p class="font-medium">Cantidades ajustadas a la disponibilidad:</p>
+                    <ul class="mb-2 list-inside list-disc">@foreach ($repeat['adjusted'] as $line)<li>{{ $line }}</li>@endforeach</ul>
+                @endif
+                @if ($repeat['skipped'])
+                    <p class="font-medium">No se han podido añadir:</p>
+                    <ul class="list-inside list-disc">@foreach ($repeat['skipped'] as $line)<li>{{ $line }}</li>@endforeach</ul>
+                @endif
+            </div>
+        @endif
+    @endif
+
     @if ($error)
         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ $error }}</div>
     @endif

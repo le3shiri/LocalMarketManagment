@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\Fulfillment;
 use App\Enums\OrderStatus;
 use App\Exceptions\CartException;
+use App\Models\AuditLog;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\User;
@@ -81,7 +82,10 @@ class OrderService
 
             $this->cart->clear($user);
 
-            return $order->refresh();
+            $order->refresh();
+            AuditLog::record('order', "Pedido {$order->code} confirmado ({$order->fulfillment->label()}, ".number_format((float) $order->total, 2, ',', '.').' €)', $order, user: $user);
+
+            return $order;
         });
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\MovementType;
 use App\Exceptions\InsufficientStockException;
+use App\Models\AuditLog;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\StockMovement;
@@ -35,6 +36,10 @@ class StockService
             $stock->save();
 
             $this->log($stock, MovementType::Entry, $user, store: $storeQty, online: $onlineQty, reference: $reference, reason: $reason);
+
+            AuditLog::record('stock', "Entrada de {$product->formatQuantity($storeQty + $onlineQty)} de «{$product->name}»", $product, [
+                'tienda' => $storeQty, 'online' => $onlineQty, 'albarán' => $reference,
+            ], $user);
 
             return $stock;
         });

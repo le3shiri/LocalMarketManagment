@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +34,15 @@ class RoleController extends Controller
             $ids->push(Permission::where('name', 'roles.manage')->value('id'));
         }
 
-        $role->permissions()->sync($ids->unique());
+        $result = $role->permissions()->sync($ids->unique());
+
+        if ($result['attached'] || $result['detached']) {
+            $names = fn (array $ids) => Permission::whereIn('id', $ids)->pluck('name')->all();
+            AuditLog::record('permissions', "Cambio de permisos del rol «{$role->label}»", $role, [
+                'añadidos' => $names($result['attached']),
+                'retirados' => $names($result['detached']),
+            ]);
+        }
 
         return back()->with('status', "Permisos del rol «{$role->label}» actualizados.");
     }

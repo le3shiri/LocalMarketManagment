@@ -12,7 +12,7 @@ class TicketController extends Controller
     public function show(Request $request, Sale $sale): View
     {
         return view('pos.ticket', [
-            'sale' => $sale->load(['items', 'payment', 'cashier']),
+            'sale' => $sale->load(['items', 'payment', 'cashier', 'refunds']),
             'justSold' => $request->boolean('nueva'),
         ]);
     }

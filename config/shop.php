@@ -15,4 +15,10 @@ return [
     ],
     'max_orders_per_slot' => (int) env('SHOP_MAX_ORDERS_PER_SLOT', 8),
     'slot_days_ahead' => 3,
+
+    /*
+    | Returns: maximum days after the sale. Perishable products are refunded but never
+    | go back to the shelf.
+    */
+    'refund_days' => (int) env('SHOP_REFUND_DAYS', 15),
 ];

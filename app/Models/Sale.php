@@ -37,6 +37,11 @@ class Sale extends Model
         return $this->morphOne(Payment::class, 'payable');
     }
 
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'code';

@@ -35,9 +35,9 @@ class Slots
 
         $taken = Order::whereDate('slot_date', $day)
             ->where('status', '!=', OrderStatus::Cancelled)
-            ->selectRaw('slot, count(*) as total')
+            ->selectRaw('slot, count(*) as how_many')
             ->groupBy('slot')
-            ->pluck('total', 'slot');
+            ->pluck('how_many', 'slot');
 
         return collect(config('shop.slots'))
             ->reject(fn (string $slot) => $day->isToday() && $day->setTimeFromTimeString(substr($slot, 0, 5))->isPast())

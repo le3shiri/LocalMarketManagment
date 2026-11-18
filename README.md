@@ -20,6 +20,9 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 - **Tienda online**: búsqueda, disponibilidad en tiempo real, carrito, checkout, «Mis pedidos» y seguimiento del estado en directo.
 - **Gestión de pedidos** (`/gestion/pedidos`): pedidos de web, teléfono y WhatsApp en un único panel; estados Pendiente → En preparación → Listo → Entregado, cancelación con motivo y detección de duplicados.
 - **Almacén**: dos stocks coordinados (tienda física / online), entradas de mercancía y libro de movimientos. La entrega descuenta lo reservado (con el peso real en productos por peso) y la cancelación lo libera.
+- **Caja / TPV** (`/caja`): lectura de códigos de barras EAN-13, cantidades y pesos, desglose de IVA (4/10/21 %), cobro en efectivo (con cambio) o con tarjeta (datáfono), ticket imprimible (factura simplificada) y devoluciones con sus reglas (15 días, perecederos que no vuelven a la venta).
+- **Pagos de pedidos**: el cliente elige efectivo o tarjeta al recoger o recibir el pedido, y el cobro se registra con el importe final.
+- **Ventas** (`/admin/ventas`): ventas, ticket medio, cobros por método (caja + pedidos) y devoluciones.
 - **Supervisión** (`/admin/pedidos`): pedidos e importes por canal, filtros y pedidos por día y estado.
 - **Avisos**: email y notificación en la web al confirmar, cuando el pedido está listo y si se cancela.
 - **Historial**: registro de operaciones importantes para el administrador.

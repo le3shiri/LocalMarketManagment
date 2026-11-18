@@ -2,6 +2,15 @@
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-stone-900">Historial de operaciones</h1>
         <p class="text-sm text-stone-500">Quién hizo qué, cuándo y desde dónde.</p>
+        @if ($integrity['valid'])
+            <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800" data-integrity="ok">
+                ✓ Historial íntegro: {{ $integrity['checked'] }} entradas encadenadas verificadas
+            </p>
+        @else
+            <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800" data-integrity="broken" role="alert">
+                ⚠ Historial manipulado: la cadena se rompe en la entrada #{{ $integrity['broken_at'] }}
+            </p>
+        @endif
     </div>
 
     <form method="GET" class="mb-4 flex flex-wrap items-end gap-2">
@@ -19,6 +28,10 @@
         </select>
         <input type="date" name="from" value="{{ request('from') }}" class="rounded-lg border border-stone-300 px-3 py-2 text-sm" aria-label="Desde">
         <input type="date" name="to" value="{{ request('to') }}" class="rounded-lg border border-stone-300 px-3 py-2 text-sm" aria-label="Hasta">
+        <label class="flex items-center gap-2 px-2 text-sm text-stone-600">
+            <input type="checkbox" name="sensibles" value="1" class="rounded border-stone-300 text-red-600" @checked($sensitiveOnly)>
+            Solo operaciones sensibles
+        </label>
         <x-button variant="secondary">Filtrar</x-button>
     </form>
 
@@ -48,7 +61,12 @@
                             ])>{{ $log->actionLabel() }}</span>
                         </td>
                         <td class="px-4 py-3">
-                            <p>{{ $log->description }}</p>
+                            <p>
+                                @if ($log->is_sensitive)
+                                    <span class="mr-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-red-700" title="Operación sensible">Sensible</span>
+                                @endif
+                                {{ $log->description }}
+                            </p>
                             @if ($log->changes)
                                 <details class="mt-1 text-xs text-stone-500">
                                     <summary class="cursor-pointer">Ver cambios</summary>

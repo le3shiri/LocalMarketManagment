@@ -53,7 +53,7 @@ class WriteOffService
                 'notes' => $notes,
             ]);
 
-            AuditLog::record('stock', "Merma de {$product->formatQuantity($quantity)} de «{$product->name}» ({$type->label()})", $product, user: $user);
+            AuditLog::record('stock', "Merma de {$product->formatQuantity($quantity)} de «{$product->name}» ({$type->label()})", $product, user: $user, sensitive: true);
 
             return $writeOff;
         });

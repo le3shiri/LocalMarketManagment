@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Warehouse;
 
 use App\Http\Controllers\Controller;
 use App\Models\StockBatch;
+use App\Services\ExpiryService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Batches that should leave the shop first: those about to expire.
+ * Batches that should leave the shop first (about to expire) and expired batches waiting
+ * to be physically withdrawn.
  */
 class ExpiryController extends Controller
 {
@@ -25,6 +28,32 @@ class ExpiryController extends Controller
             ->orderBy('expires_at')
             ->get();
 
-        return view('warehouse.expiry.index', compact('batches', 'days'));
+        $expired = StockBatch::with('product')
+            ->where('quantity_remaining', '>', 0)
+            ->where(fn ($q) => $q->where('status', StockBatch::EXPIRED)
+                ->orWhere(fn ($q) => $q->where('status', StockBatch::ACTIVE)->whereDate('expires_at', '<', today())))
+            ->orderBy('expires_at')
+            ->get();
+
+        return view('warehouse.expiry.index', compact('batches', 'days', 'expired'));
+    }
+
+    /** "Procesar caducados ahora": same as the nightly job. */
+    public function block(Request $request, ExpiryService $expiry): RedirectResponse
+    {
+        $count = $expiry->blockExpired($request->user())->count();
+
+        return back()->with('status', $count ? "{$count} lote(s) caducado(s) retirados de la venta." : 'No había lotes caducados pendientes.');
+    }
+
+    public function withdraw(Request $request, StockBatch $batch, ExpiryService $expiry): RedirectResponse
+    {
+        if ($batch->status !== StockBatch::EXPIRED) {
+            return back()->with('error', 'Solo se puede confirmar la retirada de lotes ya bloqueados por caducidad.');
+        }
+
+        $expiry->confirmWithdrawal($batch, $request->user());
+
+        return back()->with('status', "Retirada del lote {$batch->lot_code} confirmada.");
     }
 }

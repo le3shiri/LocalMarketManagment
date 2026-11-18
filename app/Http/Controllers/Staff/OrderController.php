@@ -60,4 +60,17 @@ class OrderController extends Controller
 
         return back()->with('status', "Pedido {$order->code}: {$order->status->label()}.");
     }
+
+    public function cancel(Request $request, Order $order, OrderWorkflow $workflow): RedirectResponse
+    {
+        $data = $request->validate(['reason' => ['required', 'string', 'min:3', 'max:255']], [], ['reason' => 'motivo']);
+
+        try {
+            $workflow->cancel($order, $request->user(), $data['reason']);
+        } catch (OrderTransitionException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('status', "Pedido {$order->code} cancelado. El stock reservado vuelve a estar disponible.");
+    }
 }

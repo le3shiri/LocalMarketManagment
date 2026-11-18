@@ -24,12 +24,13 @@ class RolePermissionSeeder extends Seeder
         'cart.use' => ['Comprar en la tienda online', 'Tienda online'],
         'orders.manage' => ['Gestionar pedidos (preparar, entregar, cancelar)', 'Pedidos'],
         'orders.supervise' => ['Supervisar todos los pedidos e importes por canal', 'Pedidos'],
+        'pos.use' => ['Usar el terminal de caja (TPV)', 'Caja'],
     ];
 
     /** role => [label, description, permissions] */
     public const ROLES = [
         Role::ADMIN => ['Administrador general', 'Configuración y administración global del sistema.', ['*']],
-        Role::CASHIER => ['Usuario de caja', 'Ventas en tienda física y preparación de pedidos.', ['stock.view', 'orders.manage']],
+        Role::CASHIER => ['Usuario de caja', 'Ventas en tienda física y preparación de pedidos.', ['stock.view', 'orders.manage', 'pos.use']],
         Role::WAREHOUSE => ['Encargado de almacén', 'Control de existencias, entradas y ubicaciones.', ['stock.view', 'stock.entry']],
         Role::CUSTOMER => ['Cliente', 'Compra en la tienda online y consulta sus pedidos.', ['cart.use']],
     ];

@@ -18,6 +18,7 @@
                 </select>
                 <x-button variant="secondary">Ver</x-button>
             </form>
+            <a href="{{ route('admin.reports.top', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50">Más vendidos</a>
             <a href="{{ route('admin.reports.export', request()->query()) }}" class="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50">CSV</a>
             <button type="button" onclick="window.print()" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Imprimir</button>
         </div>

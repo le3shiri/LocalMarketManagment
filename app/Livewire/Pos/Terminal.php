@@ -2,10 +2,13 @@
 
 namespace App\Livewire\Pos;
 
+use App\Enums\PaymentMethod;
 use App\Models\Product;
 use App\Support\SaleTotals;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -25,6 +28,78 @@ class Terminal extends Component
     public array $lines = [];
 
     public ?string $message = null;
+
+    public string $paymentMethod = 'cash';
+
+    /** Cash handed over by the customer (as typed: "20" or "20,50"). */
+    public string $tendered = '';
+
+    /** Optional authorisation code printed by the card terminal. Never card data. */
+    public string $authCode = '';
+
+    /** Quick-entry buttons for common notes. */
+    public function addTendered(float $amount): void
+    {
+        $this->paymentMethod = PaymentMethod::Cash->value;
+        $this->tendered = (string) round($this->tenderedAmount() + $amount, 2);
+    }
+
+    /** "Importe exacto" button. */
+    public function exactAmount(): void
+    {
+        $this->tendered = (string) $this->totals->total;
+    }
+
+    public function tenderedAmount(): float
+    {
+        return round((float) str_replace(',', '.', $this->tendered), 2);
+    }
+
+    #[Computed]
+    public function change(): ?float
+    {
+        if ($this->paymentMethod !== PaymentMethod::Cash->value || $this->tendered === '') {
+            return null;
+        }
+
+        return round($this->tenderedAmount() - $this->totals->total, 2);
+    }
+
+    /**
+     * Payment rules: there must be something to charge; cash can't be less than the total;
+     * the card code, if typed, is a short alphanumeric reference.
+     *
+     * @return array{method: PaymentMethod, tendered: ?float, change: ?float, reference: ?string}
+     *
+     * @throws ValidationException
+     */
+    public function validatePayment(): array
+    {
+        $total = $this->totals->total;
+
+        $data = $this->validate([
+            'paymentMethod' => ['required', Rule::enum(PaymentMethod::class)],
+            'tendered' => [Rule::requiredIf($this->paymentMethod === PaymentMethod::Cash->value), 'nullable', 'regex:/^\d{1,5}([.,]\d{1,2})?$/'],
+            'authCode' => ['nullable', 'alpha_num', 'max:20'],
+        ], [], ['paymentMethod' => 'método de pago', 'tendered' => 'importe entregado', 'authCode' => 'código de autorización']);
+
+        if ($total <= 0) {
+            throw ValidationException::withMessages(['tendered' => 'No hay nada que cobrar.']);
+        }
+
+        $method = PaymentMethod::from($data['paymentMethod']);
+
+        if ($method === PaymentMethod::Cash && $this->tenderedAmount() < $total) {
+            throw ValidationException::withMessages(['tendered' => 'El importe entregado es inferior al total.']);
+        }
+
+        return [
+            'method' => $method,
+            'tendered' => $method === PaymentMethod::Cash ? $this->tenderedAmount() : null,
+            'change' => $method === PaymentMethod::Cash ? round($this->tenderedAmount() - $total, 2) : null,
+            'reference' => $method === PaymentMethod::Card ? (strtoupper($this->authCode) ?: null) : null,
+        ];
+    }
 
     #[Computed]
     public function results(): Collection
@@ -108,7 +183,7 @@ class Terminal extends Component
 
     public function clear(): void
     {
-        $this->reset('lines', 'search', 'message');
+        $this->reset('lines', 'search', 'message', 'tendered', 'authCode', 'paymentMethod');
         $this->dispatch('focus-search');
     }
 
@@ -127,7 +202,7 @@ class Terminal extends Component
 
     public function render(): View
     {
-        unset($this->totals);
+        unset($this->totals, $this->change);
 
         return view('livewire.pos.terminal');
     }

@@ -23,5 +23,7 @@ class DatabaseSeeder extends Seeder
         foreach ($accounts as [$name, $email, $role]) {
             User::factory()->withRole($role)->create(compact('name', 'email'));
         }
+
+        $this->call(CatalogSeeder::class);
     }
 }

@@ -14,6 +14,7 @@ enum MovementType: string
     case Adjustment = 'adjustment';
     case Transfer = 'transfer';
     case Expiry = 'expiry';
+    case WriteOff = 'writeoff';
 
     public function label(): string
     {
@@ -28,6 +29,7 @@ enum MovementType: string
             self::Adjustment => 'Ajuste por recuento',
             self::Transfer => 'Transferencia entre canales',
             self::Expiry => 'Bloqueo por caducidad',
+            self::WriteOff => 'Merma',
         };
     }
 }

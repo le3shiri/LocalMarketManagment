@@ -176,13 +176,13 @@ class StockService
      *
      * @throws InvalidArgumentException with a user-facing message
      */
-    public function removeStock(Product $product, float $quantity, string $channel, MovementType $type, User $user, string $reason, ?string $reference = null): ProductStock
+    public function removeStock(Product $product, float $quantity, string $channel, MovementType $type, User $user, string $reason, ?string $reference = null, bool $consumeBatches = true): ProductStock
     {
         if ($quantity <= 0) {
             throw new InvalidArgumentException('La cantidad debe ser mayor que cero.');
         }
 
-        return DB::transaction(function () use ($product, $quantity, $channel, $type, $user, $reason, $reference) {
+        return DB::transaction(function () use ($product, $quantity, $channel, $type, $user, $reason, $reference, $consumeBatches) {
             $stock = $this->lock($product);
 
             $available = $channel === 'online' ? $stock->online_qty - $stock->reserved_qty : $stock->store_qty;
@@ -202,7 +202,7 @@ class StockService
             $this->log($stock, $type, $user,
                 store: $channel === 'online' ? 0 : -$quantity,
                 online: $channel === 'online' ? -$quantity : 0,
-                reference: $reference, reason: $reason);
+                reference: $reference, reason: $reason, consumeBatches: $consumeBatches);
 
             return $stock;
         });

@@ -73,6 +73,15 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('status', "Producto «{$product->name}» actualizado.");
     }
 
+    public function toggle(Product $product): RedirectResponse
+    {
+        $product->forceFill(['is_active' => ! $product->is_active])->save();
+
+        return back()->with('status', $product->is_active
+            ? "«{$product->name}» vuelve a estar a la venta."
+            : "«{$product->name}» se ha retirado de la venta.");
+    }
+
     private function formData(Product $product): array
     {
         return [

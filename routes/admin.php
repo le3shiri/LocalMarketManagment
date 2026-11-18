@@ -22,6 +22,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('can:products.manage')->group(function () {
         Route::resource('products', ProductController::class)->except(['show', 'destroy']);
+        Route::patch('products/{product}/toggle', [ProductController::class, 'toggle'])->name('products.toggle');
     });
 
     Route::middleware('can:roles.manage')->group(function () {

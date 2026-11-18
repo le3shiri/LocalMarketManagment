@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Events\OrderStatusChanged;
 use App\Exceptions\OrderTransitionException;
 use App\Models\AuditLog;
 use App\Models\Order;
@@ -84,6 +85,8 @@ class OrderWorkflow
             'from_status' => null,
             'to_status' => $order->status,
         ]);
+
+        OrderStatusChanged::dispatch($order, null, $order->status);
     }
 
     /**
@@ -133,6 +136,8 @@ class OrderWorkflow
         ]);
 
         AuditLog::record('order', "Pedido {$order->code}: {$from->label()} → {$target->label()}", $order, $note ? ['motivo' => $note] : null, $user);
+
+        OrderStatusChanged::dispatch($order, $from, $target, $note);
 
         return $order;
     }

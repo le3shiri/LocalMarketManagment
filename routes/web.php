@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Livewire\CartPage;
 use App\Livewire\Checkout;
@@ -16,6 +17,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/cuenta', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/cuenta', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/cuenta/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/avisos', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/avisos/leidos', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::get('/avisos/{id}', [NotificationController::class, 'show'])->name('notifications.show');
 
     Route::middleware('can:cart.use')->group(function () {
         Route::get('/carrito', CartPage::class)->name('cart.index');

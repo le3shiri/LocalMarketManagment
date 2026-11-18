@@ -251,6 +251,41 @@ class StockService
     }
 
     /**
+     * Move units between channels without changing the real units (e.g. mid-morning, when
+     * online sells out early and the shop has plenty). Online → store can only move units
+     * that aren't reserved for orders.
+     *
+     * @param  string  $to  'online' or 'store'
+     *
+     * @throws InvalidArgumentException with a user-facing message
+     */
+    public function transfer(Product $product, float $quantity, string $to, User $user, string $reason): ProductStock
+    {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('La cantidad a transferir debe ser mayor que cero.');
+        }
+
+        return DB::transaction(function () use ($product, $quantity, $to, $user, $reason) {
+            $stock = $this->lock($product);
+            $available = $to === 'online' ? $stock->store_qty : $stock->online_qty - $stock->reserved_qty;
+
+            if ($quantity > $available + 0.0005) {
+                $from = $to === 'online' ? 'en tienda' : 'online sin reservar';
+                throw new InvalidArgumentException("No se puede transferir {$product->formatQuantity($quantity)}: solo hay {$product->formatQuantity(max(0, $available))} {$from}.");
+            }
+
+            $sign = $to === 'online' ? 1 : -1;
+            $stock->online_qty = round($stock->online_qty + $sign * $quantity, 3);
+            $stock->store_qty = round($stock->store_qty - $sign * $quantity, 3);
+            $stock->save();
+
+            $this->log($stock, MovementType::Transfer, $user, store: -$sign * $quantity, online: $sign * $quantity, reason: $reason);
+
+            return $stock;
+        });
+    }
+
+    /**
      * Returned goods that can be sold again go back to the store shelf.
      *
      * @param  array<int, float>  $lines  product_id => quantity

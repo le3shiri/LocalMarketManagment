@@ -120,10 +120,12 @@ class DemoActivitySeeder extends Seeder
         ));
 
         if ($demo = User::firstWhere('email', 'cliente@localmarket.test')) {
-            $this->customers->push($demo); // so "Mis pedidos" / "Repetir pedido" have history in the demo
+            // Listed several times so "Mis pedidos" / "Repetir pedido" always have history in the demo.
+            $this->customers->push($demo, $demo, $demo, $demo);
         }
 
-        $this->products = Product::active()->with('stock')->get();
+        // Explicit order: the same seed must give the same data on SQLite and MySQL.
+        $this->products = Product::active()->with('stock')->orderBy('id')->get();
     }
 
     private function simulateDay(CarbonImmutable $day, CarbonImmutable $realNow): void
@@ -248,7 +250,8 @@ class DemoActivitySeeder extends Seeder
     {
         $this->at($when);
 
-        $customer = $this->customers->random();
+        // mt_rand (seeded), not Collection::random() which uses random_int and ignores the seed.
+        $customer = $this->customers[mt_rand(0, $this->customers->count() - 1)];
         $channel = ['web', 'web', 'web', 'web', 'web', 'whatsapp', 'whatsapp', 'whatsapp', 'phone', 'phone'][mt_rand(0, 9)];
         $delivery = mt_rand(1, 100) <= 30;
         $slotDay = mt_rand(0, 1) ? $when : $when->addDay();

@@ -55,7 +55,7 @@ class OrderSupervisionTest extends TestCase
     public function test_orders_can_be_filtered_by_date_and_searched(): void
     {
         $this->visit('?from=2026-11-21&to=2026-11-21')->assertSee('Cliente Tel')->assertDontSee('Cliente Web');
-        $this->visit('?q=LM-000001')->assertSee('Cliente Web')->assertDontSee('Cliente Tel');
+        $this->visit('?q='.Order::firstWhere('contact_name', 'Cliente Web')->code)->assertSee('Cliente Web')->assertDontSee('Cliente Tel');
         $this->visit('?to=2026-11-01&from=2026-11-21')->assertSessionHasErrors('to');
     }
 

@@ -197,6 +197,60 @@ class StockService
     }
 
     /**
+     * Correct the real units after a physical count. The difference is applied to the
+     * store stock; if the count is so low that the store would go negative, the rest comes
+     * out of the free online stock. Units reserved for orders can never be adjusted away.
+     *
+     * @return float the difference applied (counted − recorded)
+     *
+     * @throws InvalidArgumentException with a user-facing message
+     */
+    public function adjustCount(Product $product, float $counted, User $user, string $reason): float
+    {
+        if ($counted < 0) {
+            throw new InvalidArgumentException('La cantidad contada no puede ser negativa.');
+        }
+
+        if (trim($reason) === '') {
+            throw new InvalidArgumentException('El motivo del ajuste es obligatorio.');
+        }
+
+        return DB::transaction(function () use ($product, $counted, $user, $reason) {
+            $stock = $this->lock($product);
+            $difference = round($counted - $stock->on_hand, 3);
+
+            if (abs($difference) < 0.0005) {
+                return 0.0;
+            }
+
+            $storeDelta = $difference;
+            $onlineDelta = 0.0;
+
+            if ($stock->store_qty + $difference < 0) {
+                $storeDelta = -$stock->store_qty;
+                $onlineDelta = round($difference - $storeDelta, 3); // negative
+                $freeOnline = $stock->online_qty - $stock->reserved_qty;
+
+                if (-$onlineDelta > $freeOnline + 0.0005) {
+                    throw new InvalidArgumentException(
+                        "El recuento ({$product->formatQuantity($counted)}) es inferior a lo reservado para pedidos ({$product->formatQuantity($stock->reserved_qty)}). Revisa los pedidos pendientes antes de ajustar."
+                    );
+                }
+            }
+
+            $stock->store_qty = round($stock->store_qty + $storeDelta, 3);
+            $stock->online_qty = round($stock->online_qty + $onlineDelta, 3);
+            $stock->on_hand = round($counted, 3);
+            $stock->save();
+
+            $this->log($stock, MovementType::Adjustment, $user, store: $storeDelta, online: $onlineDelta,
+                reason: $reason.' (contado '.$product->formatQuantity($counted).', diferencia '.($difference > 0 ? '+' : '').$product->formatQuantity($difference).')');
+
+            return $difference;
+        });
+    }
+
+    /**
      * Returned goods that can be sold again go back to the store shelf.
      *
      * @param  array<int, float>  $lines  product_id => quantity

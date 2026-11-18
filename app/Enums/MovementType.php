@@ -11,6 +11,7 @@ enum MovementType: string
     case Sale = 'sale';
     case Return = 'return';
     case Exit = 'exit';
+    case Adjustment = 'adjustment';
 
     public function label(): string
     {
@@ -22,6 +23,7 @@ enum MovementType: string
             self::Sale => 'Venta en tienda',
             self::Return => 'Devolución de cliente',
             self::Exit => 'Salida de mercancía',
+            self::Adjustment => 'Ajuste por recuento',
         };
     }
 }

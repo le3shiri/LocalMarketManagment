@@ -57,11 +57,48 @@
                 @endforeach
             </ul>
 
-            <x-card title="Resumen">
-                <div class="flex justify-between text-sm">
-                    <span>Subtotal</span>
-                    <span class="font-semibold">{{ Number::currency($subtotal, 'EUR', 'es') }}</span>
-                </div>
+            <x-card title="Resumen del pedido" class="h-fit">
+                <dl class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <dt>Subtotal ({{ $items->count() }} {{ Str::plural('producto', $items->count()) }})</dt>
+                        <dd class="font-medium">{{ Number::currency($pickup->subtotal, 'EUR', 'es') }}</dd>
+                    </div>
+                    <div class="flex justify-between text-stone-600">
+                        <dt>Recogida en tienda</dt>
+                        <dd>Gratis</dd>
+                    </div>
+                    <div class="flex justify-between text-stone-600">
+                        <dt>Envío a domicilio</dt>
+                        <dd>{{ $delivery->deliveryFee > 0 ? Number::currency($delivery->deliveryFee, 'EUR', 'es') : 'Gratis' }}</dd>
+                    </div>
+                    @if ($delivery->deliveryFee > 0)
+                        <p class="rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-800">
+                            Te faltan {{ Number::currency($delivery->missingForFreeDelivery, 'EUR', 'es') }} para el envío gratis.
+                        </p>
+                    @endif
+                    <div class="flex justify-between border-t border-stone-200 pt-3 text-base">
+                        <dt class="font-semibold">Total (recogida)</dt>
+                        <dd class="font-bold text-emerald-700" data-total>{{ Number::currency($pickup->total, 'EUR', 'es') }}</dd>
+                    </div>
+                    <div class="flex justify-between text-stone-600">
+                        <dt>Total con envío</dt>
+                        <dd>{{ Number::currency($delivery->total, 'EUR', 'es') }}</dd>
+                    </div>
+                </dl>
+
+                @if ($pickup->hasWeightedItems)
+                    <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                        Incluye productos por peso: el importe es aproximado y se ajusta al pesarlos en tienda.
+                    </p>
+                @endif
+
+                @if (Route::has('checkout.index'))
+                    <a href="{{ route('checkout.index') }}" @class([
+                        'mt-4 block rounded-lg px-4 py-2.5 text-center text-sm font-medium',
+                        'bg-emerald-600 text-white hover:bg-emerald-700' => empty($shortages),
+                        'pointer-events-none bg-stone-200 text-stone-500' => ! empty($shortages),
+                    ])>Tramitar pedido</a>
+                @endif
             </x-card>
         </div>
     @endif

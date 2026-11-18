@@ -25,6 +25,12 @@
                 </div>
                 <p class="text-xs text-stone-500">Propuesta inicial: entre el 20 % y el 30 % para el canal online, menos en frescos.</p>
 
+                <div class="grid grid-cols-2 gap-3">
+                    <x-input name="lot_code" label="Lote" placeholder="Ej.: L2611-A" />
+                    <x-input name="expires_at" label="Caducidad" type="date" :min="today()->toDateString()" />
+                </div>
+                <p class="text-xs text-stone-500">Lote y caducidad son obligatorios en productos perecederos.</p>
+
                 <x-input name="reference" label="Albarán / referencia del proveedor" />
                 <x-input name="reason" label="Observaciones" />
 

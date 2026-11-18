@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Warehouse\BatchController;
 use App\Http\Controllers\Warehouse\ChannelController;
 use App\Http\Controllers\Warehouse\ReplenishmentController;
 use App\Http\Controllers\Warehouse\StockController;
@@ -15,6 +16,7 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
         Route::get('movimientos', [StockMovementController::class, 'index'])->name('movements.index');
         Route::get('movimientos/exportar', [StockMovementController::class, 'export'])->name('movements.export');
         Route::get('reposicion', [ReplenishmentController::class, 'index'])->name('replenishment.index');
+        Route::get('productos/{product}/lotes', [BatchController::class, 'index'])->name('batches.index');
     });
 
     Route::middleware('can:stock.entry')->group(function () {

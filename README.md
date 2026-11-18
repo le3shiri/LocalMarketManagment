@@ -17,7 +17,7 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 
 - **Usuarios y roles**: inicio y cierre de sesión, registro de clientes, gestión de cuentas, roles y permisos (mínimo privilegio).
 - **Catálogo**: productos por unidad o por peso aproximado, perecederos, categorías, activación de la venta.
-- **Tienda online**: búsqueda, disponibilidad en tiempo real, carrito, checkout, «Mis pedidos» y seguimiento del estado en directo.
+- **Tienda online**: búsqueda, disponibilidad en tiempo real, carrito, checkout, «Mis pedidos», **repetir un pedido anterior** con los precios de hoy y seguimiento del estado en directo.
 - **Gestión de pedidos** (`/gestion/pedidos`): pedidos de web, teléfono y WhatsApp en un único panel; estados Pendiente → En preparación → Listo → Entregado, cancelación con motivo y detección de duplicados.
 - **Almacén** (`/almacen`): dos stocks coordinados (tienda física / online) y libro de movimientos con exportación CSV. Incluye:
   - entradas con lote y caducidad (obligatorios en perecederos); las salidas consumen primero el lote que caduca antes (FEFO);
@@ -33,7 +33,8 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 - **Supervisión** (`/admin/pedidos`): pedidos e importes por canal, filtros y pedidos por día y estado.
 - **Avisos**: email y notificación en la web al confirmar, cuando el pedido está listo y si se cancela.
 - **Panel** (`/admin`): ventas de hoy frente a la semana anterior, pedidos por estado y canal, ventas de 14 días y alertas de almacén.
-- **Informes** (`/admin/informes`): ventas por día, semana o mes (caja, pedidos, devoluciones, neto e IVA), imprimibles y en CSV.
+- **Informes** (`/admin/informes`): ventas por día, semana o mes (caja, pedidos, devoluciones, neto e IVA) y **productos más vendidos** con tendencia. Imprimibles.
+- **Exportaciones CSV** (compatibles con Excel): informes, tickets, pedidos, más vendidos, mermas y movimientos, siempre con los filtros de la pantalla y registradas en el historial.
 - **Historial** (`/admin/historial`): registro de operaciones con marca de **operaciones sensibles**. Las entradas están encadenadas con hash SHA-256, así que cualquier modificación o borrado se detecta (`php artisan audit:verify`).
 - **Copias de seguridad** (`/admin/copias`): copia diaria comprimida con rotación, descarga y restauración por consola. Ver [docs/BACKUP.md](docs/BACKUP.md).
 

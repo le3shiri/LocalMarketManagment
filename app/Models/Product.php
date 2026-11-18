@@ -24,7 +24,7 @@ class Product extends Model
     protected string $auditLabel = 'producto';
 
     protected $fillable = [
-        'category_id', 'name', 'sku', 'description', 'price', 'unit_type',
+        'category_id', 'name', 'sku', 'barcode', 'description', 'price', 'unit_type',
         'is_perishable', 'location', 'image_path',
     ];
 

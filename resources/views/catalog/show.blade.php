@@ -33,7 +33,9 @@
                 @endif
             </dl>
 
-            {{ $actions ?? '' }}
+            <div class="max-w-xs pt-2">
+                <livewire:add-to-cart :product="$product" />
+            </div>
         </div>
     </div>
 </x-layouts.app>

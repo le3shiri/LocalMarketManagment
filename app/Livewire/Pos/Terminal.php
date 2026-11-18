@@ -118,8 +118,13 @@ class Terminal extends Component
     }
 
     /** Enter in the search box: exact barcode or SKU adds the product, otherwise the single match. */
-    public function scan(): void
+    public function scan(?string $typed = null): void
     {
+        if ($typed !== null) {
+            $this->search = $typed;
+            unset($this->results);
+        }
+
         $term = trim($this->search);
 
         if ($term === '') {

@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title.' · ' : '' }}{{ config('app.name') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="min-h-screen bg-stone-50 text-stone-800 antialiased">
-    <header class="border-b border-stone-200 bg-white">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <a href="{{ url('/') }}" class="flex items-center gap-2 text-lg font-semibold text-emerald-700">
-                <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-600 text-white">LM</span>
+<body class="min-h-screen bg-page font-sans text-ink antialiased">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-card focus:px-4 focus:py-3 focus:font-bold">Saltar al contenido</a>
+    <header class="border-b border-line bg-card">
+        <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <a href="{{ url('/') }}" class="flex items-center gap-2.5 text-lg font-bold tracking-tight text-ink">
+                <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-ink text-sm font-bold text-on-action" aria-hidden="true">LM</span>
                 {{ config('app.name') }}
             </a>
 
-            <nav class="flex flex-wrap items-center gap-1 text-sm">
+            <nav class="flex flex-wrap items-center gap-1 text-[15px]" aria-label="Principal">
                 @if (Route::has('catalog.index'))
                     <x-nav-link :href="route('catalog.index')" :active="request()->routeIs('catalog.*')">Catálogo</x-nav-link>
                 @endif
@@ -26,26 +30,26 @@
                         <x-nav-group :group="$group" />
                     @endforeach
 
-                    <span class="mx-2 h-5 w-px bg-stone-200"></span>
+                    <span class="mx-2 h-6 w-px bg-line" aria-hidden="true"></span>
                     @if (Route::has('notifications.index'))
                         @php($unread = auth()->user()->unreadNotifications()->count())
-                        <a href="{{ route('notifications.index') }}" class="relative rounded-md px-2 py-2 text-stone-600 hover:bg-stone-100"
+                        <a href="{{ route('notifications.index') }}" class="relative grid h-11 w-11 place-items-center rounded-control text-ink hover:bg-sunken"
                            title="Avisos" aria-label="Avisos{{ $unread ? " ({$unread} sin leer)" : '' }}">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                             @if ($unread)
-                                <span class="absolute -right-0.5 -top-0.5 rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white" data-unread>{{ $unread }}</span>
+                                <span class="absolute right-1 top-1 grid min-w-5 place-items-center rounded-full bg-action px-1.5 text-[11px] font-extrabold text-on-action ring-2 ring-card" data-unread>{{ $unread }}</span>
                             @endif
                         </a>
                     @endif
                     @if (Route::has('profile.edit'))
                         <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">{{ auth()->user()->name }}</x-nav-link>
                     @else
-                        <span class="px-3 py-2 text-stone-600">{{ auth()->user()->name }}</span>
+                        <span class="px-3 py-2 text-ink-soft">{{ auth()->user()->name }}</span>
                     @endif
                     @if (Route::has('logout'))
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="rounded-md px-3 py-2 text-stone-600 hover:bg-stone-100">Cerrar sesión</button>
+                            <button type="submit" class="min-h-11 rounded-control px-3 font-medium text-ink-soft hover:bg-sunken">Cerrar sesión</button>
                         </form>
                     @endif
                 @else
@@ -53,21 +57,22 @@
                         <x-nav-link :href="route('login')" :active="request()->routeIs('login')">Iniciar sesión</x-nav-link>
                     @endif
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="rounded-md bg-emerald-600 px-3 py-2 font-medium text-white hover:bg-emerald-700">Crear cuenta</a>
+                        <a href="{{ route('register') }}" class="inline-flex min-h-11 items-center rounded-control bg-ink px-4 font-semibold text-on-action hover:bg-stone-800">Crear cuenta</a>
                     @endif
                 @endauth
             </nav>
         </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-8">
+    <main id="contenido" class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         @if (session('status'))
-            <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+            <div class="mb-6 flex items-center gap-2 rounded-control border border-success/25 bg-success-soft px-4 py-3 text-[15px] font-semibold text-success-ink" role="status">
+                <svg class="h-4 w-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
                 {{ session('status') }}
             </div>
         @endif
         @if (session('error'))
-            <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            <div class="mb-6 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-[15px] font-semibold text-red-800" role="alert">
                 {{ session('error') }}
             </div>
         @endif
@@ -75,7 +80,7 @@
         {{ $slot }}
     </main>
 
-    <footer class="mx-auto max-w-6xl px-4 pb-8 text-xs text-stone-400">
+    <footer class="mx-auto max-w-7xl px-4 pb-8 text-[13px] text-ink-muted sm:px-6">
         LocalMarket · Tienda de barrio · Barcelona
     </footer>
     @livewireScripts

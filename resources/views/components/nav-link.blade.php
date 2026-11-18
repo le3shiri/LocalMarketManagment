@@ -1,7 +1,7 @@
 @props(['active' => false])
 
 <a {{ $attributes->class([
-    'rounded-md px-3 py-2 transition',
-    'bg-emerald-50 font-medium text-emerald-700' => $active,
-    'text-stone-600 hover:bg-stone-100' => ! $active,
-]) }}>{{ $slot }}</a>
+    'inline-flex min-h-11 items-center rounded-control px-3 transition',
+    'bg-sunken font-bold text-ink' => $active,
+    'font-medium text-ink-soft hover:bg-sunken hover:text-ink' => ! $active,
+]) }} @if ($active) aria-current="page" @endif>{{ $slot }}</a>

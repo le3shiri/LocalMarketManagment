@@ -37,6 +37,43 @@ class CartService
         return $item;
     }
 
+    /**
+     * Set a line to an exact quantity; zero or less removes it.
+     *
+     * @throws CartException
+     */
+    public function setQuantity(User $user, int $itemId, float $quantity): ?CartItem
+    {
+        $item = $user->cartItems()->with('product')->findOrFail($itemId);
+
+        if ($quantity <= 0) {
+            $item->delete();
+
+            return null;
+        }
+
+        $this->assertValidQuantity($item->product, $quantity);
+
+        // Lowering a quantity must always be possible, even if stock dropped meanwhile.
+        if ($quantity > $item->quantity) {
+            $this->assertAvailable($item->product, $quantity);
+        }
+
+        $item->update(['quantity' => round($quantity, 3)]);
+
+        return $item;
+    }
+
+    public function remove(User $user, int $itemId): void
+    {
+        $user->cartItems()->whereKey($itemId)->delete();
+    }
+
+    public function clear(User $user): void
+    {
+        $user->cartItems()->delete();
+    }
+
     public function count(User $user): int
     {
         return $user->cartItems()->count();

@@ -69,6 +69,18 @@ class CatalogShelvesTest extends TestCase
             ->assertDontSee('Carne picada mixta');
     }
 
+    public function test_every_card_has_an_image_preview_photo_or_placeholder(): void
+    {
+        $fruit = Category::factory()->create(['name' => 'Fruta y verdura']);
+        Product::factory()->for($fruit)->create(['name' => 'Tomate de ensalada', 'image_path' => 'products/tomate.jpg']);
+        Product::factory()->for($fruit)->create(['name' => 'Manzana golden', 'image_path' => null]);
+
+        $html = Livewire::test(ProductCatalog::class)->html();
+
+        $this->assertStringContainsString('/storage/products/tomate.jpg', $html, 'Uploaded photo shown on the shelf');
+        $this->assertSame(1, substr_count($html, 'data-placeholder'), 'Products without a photo get a placeholder');
+    }
+
     public function test_the_unit_stepper_never_goes_below_one(): void
     {
         $product = $this->stocked(Product::factory()->create());

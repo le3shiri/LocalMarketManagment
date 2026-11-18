@@ -37,7 +37,14 @@ Los tokens están en el bloque `@theme` de [`resources/css/app.css`](../resource
 
 Tipografía: **Manrope**, de Google Fonts, con pesos de 400 a 800.
 
-**Transición.** Las pantallas que todavía no se han rediseñado usan las paletas `stone` y `emerald` de Tailwind. En `@theme` esas paletas apuntan al sistema: `emerald` pasa a ser el azul de acción y `stone` los grises fríos. Así toda la aplicación ya se ve coherente. Cada vez que se rediseña una pantalla, se cambian sus clases por los tokens con nombre.
+**Todas las vistas usan ya los tokens con nombre**: ninguna usa las paletas `stone`, `emerald`, `amber` ni `sky` de Tailwind. En `@theme`, `stone` y `emerald` siguen apuntando al sistema como red de seguridad, por si alguna clase antigua vuelve a aparecer.
+
+Significados que no se mezclan:
+- `action` (azul): solo para lo que se puede pulsar.
+- `success`: solo para lo que ha ido bien, como un pedido cobrado, una cuenta activa, un producto añadido o una variación positiva.
+- `stock-low` y `warn-soft`: avisos.
+- El rojo de Tailwind: errores y acciones destructivas.
+- Los importes y los totales van en `ink`.
 
 ## Componentes Blade
 
@@ -48,6 +55,16 @@ Tipografía: **Manrope**, de Google Fonts, con pesos de 400 a 800.
 | WeightSelector y UnitStepper | `livewire/add-to-cart.blade.php` (modo `compact`) |
 | StockStatus | `components/availability.blade.php` |
 | Button, Input, Card, NavLink, NavGroup | `components/*.blade.php` |
+| PageHeader (título, subtítulo, volver y acciones) | `components/page-header.blade.php` |
+| Badge (success, warning, danger, action, neutral) | `components/badge.blade.php` |
+| OrderStatus (punto y palabra en su tono) | `components/order-status.blade.php` con `OrderStatus::badge()` |
+| Pestañas del almacén (control segmentado) | `components/warehouse-tabs.blade.php` |
+| Pantalla de acceso (formulario junto a las estanterías) | `components/auth-shell.blade.php` |
+| Exportar CSV | `components/csv-link.blade.php` |
+
+Reglas globales en `app.css` (capa `base`):
+- botones, campos y selectores dentro de `main` miden al menos 44 px de alto;
+- las casillas y los botones de radio usan `accent-action`.
 
 ## Reglas de accesibilidad
 

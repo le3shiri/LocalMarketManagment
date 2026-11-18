@@ -1,5 +1,5 @@
 <x-layouts.app title="Mi cuenta">
-    <h1 class="mb-6 text-2xl font-bold text-stone-900">Mi cuenta</h1>
+    <h1 class="mb-6 text-[28px] font-extrabold tracking-tight text-ink">Mi cuenta</h1>
 
     <div class="grid gap-6 md:grid-cols-2">
         <x-card title="Datos personales">
@@ -20,11 +20,11 @@
                 @method('PUT')
                 @foreach (['current_password' => 'Contraseña actual', 'password' => 'Nueva contraseña', 'password_confirmation' => 'Repite la nueva contraseña'] as $field => $label)
                     <div class="space-y-1">
-                        <label for="{{ $field }}" class="block text-sm font-medium text-stone-700">{{ $label }}</label>
+                        <label for="{{ $field }}" class="block text-sm font-semibold text-ink-soft">{{ $label }}</label>
                         <input id="{{ $field }}" name="{{ $field }}" type="password" required
-                               class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                               class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px] shadow-card focus:outline-none focus:ring-2 focus:ring-action-ring">
                         @error($field, 'password')
-                            <p class="text-xs text-red-600">{{ $message }}</p>
+                            <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p>
                         @enderror
                     </div>
                 @endforeach

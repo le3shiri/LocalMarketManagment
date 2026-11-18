@@ -57,7 +57,7 @@
                         <x-nav-link :href="route('login')" :active="request()->routeIs('login')">Iniciar sesión</x-nav-link>
                     @endif
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="inline-flex min-h-11 items-center rounded-control bg-ink px-4 font-semibold text-on-action hover:bg-stone-800">Crear cuenta</a>
+                        <a href="{{ route('register') }}" class="inline-flex min-h-11 items-center rounded-control bg-ink px-4 font-semibold text-on-action hover:bg-ink-soft">Crear cuenta</a>
                     @endif
                 @endauth
             </nav>

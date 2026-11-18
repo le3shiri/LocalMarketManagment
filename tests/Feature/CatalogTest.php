@@ -14,7 +14,8 @@ class CatalogTest extends TestCase
 
     public function test_guests_can_browse_the_catalog_with_prices(): void
     {
-        Product::factory()->byWeight()->create(['name' => 'Tomate de ensalada', 'price' => 2.40]);
+        $product = Product::factory()->byWeight()->create(['name' => 'Tomate de ensalada', 'price' => 2.40]);
+        $product->stock->update(['on_hand' => 20, 'store_qty' => 14, 'online_qty' => 6]);
 
         $this->get('/catalogo')
             ->assertOk()

@@ -75,6 +75,17 @@ class CatalogSeeder extends Seeder
             'store_qty' => $onHand - $online,
             'min_alert' => $minAlert,
         ]);
+
+        // Opening stock as one batch; perishables get staggered expiry dates so the
+        // expiry screens have something to show in the demo.
+        if ($onHand > 0) {
+            $product->batches()->create([
+                'lot_code' => 'INI-'.$product->sku,
+                'expires_at' => $product->is_perishable ? today()->addDays(crc32($product->sku) % 9) : null,
+                'quantity_received' => $onHand,
+                'quantity_remaining' => $onHand,
+            ]);
+        }
     }
 
     /** Stable, valid EAN-13 derived from the SKU. */

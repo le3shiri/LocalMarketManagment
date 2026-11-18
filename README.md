@@ -38,6 +38,16 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 - **Historial** (`/admin/historial`): registro de operaciones con marca de **operaciones sensibles**. Las entradas están encadenadas con hash SHA-256, así que cualquier modificación o borrado se detecta (`php artisan audit:verify`).
 - **Copias de seguridad** (`/admin/copias`): copia diaria comprimida con rotación, descarga y restauración por consola. Ver [docs/BACKUP.md](docs/BACKUP.md).
 
+## Documentación
+
+| Documento | Contenido |
+|---|---|
+| [Manual de usuario](docs/MANUAL.md) | Tareas por rol y guion de demostración de 10 minutos |
+| [Arquitectura](docs/ARQUITECTURA.md) | Módulos, servicios, flujo de stock, ciclo del pedido, seguridad y decisiones técnicas |
+| [Modelo de datos](docs/MODELO_DE_DATOS.md) | Diagrama entidad-relación generado del esquema real (`php artisan docs:er-diagram --write`) |
+| [Informe de pruebas](docs/PRUEBAS.md) | 341 tests, pruebas imprescindibles de la propuesta, CI en SQLite y MariaDB |
+| [Copias de seguridad](docs/BACKUP.md) | Copia, restauración y prueba de restauración |
+
 ## Puesta en marcha (XAMPP)
 
 ```bash
@@ -59,6 +69,15 @@ php artisan serve
 ```
 
 La aplicación queda en <http://localhost:8000>.
+
+En entorno local, el seed genera también **6 semanas de actividad realista** (tickets, pedidos de los tres canales, devoluciones, mermas y caducidades), así que el panel y los informes tienen datos desde el primer momento. Para una tienda vacía usa `SEED_DEMO_ACTIVITY=false`.
+
+En Windows/XAMPP, añade al `.env` las rutas de las herramientas de copia:
+
+```dotenv
+BACKUP_MYSQLDUMP="C:/xampp/mysql/bin/mysqldump.exe"
+BACKUP_MYSQL="C:/xampp/mysql/bin/mysql.exe"
+```
 
 ### Cuentas de demostración
 

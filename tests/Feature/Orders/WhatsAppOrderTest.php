@@ -47,14 +47,14 @@ class WhatsAppOrderTest extends TestCase
 
     public function test_whatsapp_order_keeps_channel_and_original_message(): void
     {
-        $this->filledForm()->call('save')->assertRedirect(route('staff.orders.show', 'LM-000001'));
+        $this->filledForm()->call('save')->assertRedirect(route('staff.orders.show', Order::sole()));
 
         $order = Order::sole();
         $this->assertSame('whatsapp', $order->channel);
         $this->assertSame(self::MESSAGE, $order->source_message);
         $this->assertSame('Chat Marta 09:42', $order->source_reference);
 
-        $this->actingAs($this->cashier)->get('/gestion/pedidos/LM-000001')
+        $this->actingAs($this->cashier)->get('/gestion/pedidos/'.Order::sole()->code)
             ->assertSee('WhatsApp')
             ->assertSee(self::MESSAGE);
     }
@@ -82,12 +82,12 @@ class WhatsAppOrderTest extends TestCase
 
         $second = $this->filledForm('+34 600 123 456')
             ->call('save')
-            ->assertSet('duplicates', ['LM-000001'])
+            ->assertSet('duplicates', [Order::sole()->code])
             ->assertSee('Posible pedido duplicado')
             ->assertNoRedirect();
         $this->assertSame(1, Order::count());
 
-        $second->call('saveAnyway')->assertRedirect(route('staff.orders.show', 'LM-000002'));
+        $second->call('saveAnyway')->assertRedirect(route('staff.orders.show', Order::latest('id')->first()));
         $this->assertSame(2, Order::count());
     }
 

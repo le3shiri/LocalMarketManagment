@@ -47,10 +47,10 @@ class ConfirmSaleTest extends TestCase
     public function test_cash_sale_is_saved_with_ticket_number_lines_and_payment(): void
     {
         $this->sale()->set('tendered', '20')->call('confirmSale')
-            ->assertRedirect(route('pos.tickets.show', ['sale' => 'T-000001', 'nueva' => 1]));
+            ->assertRedirect(route('pos.tickets.show', ['sale' => Sale::sole()->code, 'nueva' => 1]));
 
         $sale = Sale::sole();
-        $this->assertSame('T-000001', $sale->code);
+        $this->assertSame('T-'.str_pad((string) $sale->id, 6, '0', STR_PAD_LEFT), $sale->code);
         $this->assertSame('10.85', $sale->total);
         $this->assertSame(2, $sale->items()->count());
         $this->assertTrue($sale->cashier->is($this->cashier));
@@ -96,7 +96,7 @@ class ConfirmSaleTest extends TestCase
     {
         $this->sale()->set('tendered', '20')->call('confirmSale');
 
-        $this->actingAs($this->cashier)->get('/caja/tickets/T-000001?nueva=1')
+        $this->actingAs($this->cashier)->get('/caja/tickets/'.Sale::sole()->code.'?nueva=1')
             ->assertOk()
             ->assertSee('FACTURA SIMPLIFICADA')
             ->assertSee('Le atendió: Laura Caja')
@@ -111,7 +111,7 @@ class ConfirmSaleTest extends TestCase
     {
         $this->sale()->set('paymentMethod', 'card')->set('authCode', '123ABC')->call('confirmSale');
 
-        $this->assertDatabaseHas('audit_logs', ['action' => 'sale', 'description' => 'Venta T-000001 (Tarjeta, 10,85 €)']);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'sale', 'description' => 'Venta '.Sale::sole()->code.' (Tarjeta, 10,85 €)']);
         $this->assertSame('123ABC', Payment::sole()->reference);
     }
 }

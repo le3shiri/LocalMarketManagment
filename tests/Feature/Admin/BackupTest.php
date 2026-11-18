@@ -34,12 +34,22 @@ class BackupTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_backup_creates_a_compressed_sqlite_copy_and_is_audited(): void
+    /** The suite runs on SQLite locally and on MySQL in CI: backups differ by driver. */
+    private function ext(): string
     {
-        $this->artisan('backup:run')->expectsOutputToContain('Copia creada: localmarket-20261120-020000.sqlite.gz')->assertSuccessful();
+        return DB::connection()->getDriverName() === 'sqlite' ? '.sqlite.gz' : '.sql.gz';
+    }
 
-        $dump = gzdecode(File::get("{$this->dir}/localmarket-20261120-020000.sqlite.gz"));
-        $this->assertStringStartsWith("SQLite format 3\0", $dump);
+    public function test_backup_creates_a_compressed_copy_and_is_audited(): void
+    {
+        $this->artisan('backup:run')->expectsOutputToContain('Copia creada: localmarket-20261120-020000'.$this->ext())->assertSuccessful();
+
+        $dump = gzdecode(File::get("{$this->dir}/localmarket-20261120-020000".$this->ext()));
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $this->assertStringStartsWith("SQLite format 3\0", $dump);
+        } else {
+            $this->assertStringContainsString('CREATE TABLE `orders`', $dump, 'mysqldump of the whole schema');
+        }
 
         $log = AuditLog::where('action', 'backup')->sole();
         $this->assertTrue($log->is_sensitive);
@@ -49,7 +59,7 @@ class BackupTest extends TestCase
     {
         $service = app(BackupService::class);
         $names = [$service->create(), $service->create()];
-        $this->assertSame(['localmarket-20261120-020000.sqlite.gz', 'localmarket-20261120-020000-2.sqlite.gz'], $names);
+        $this->assertSame(['localmarket-20261120-020000'.$this->ext(), 'localmarket-20261120-020000-2'.$this->ext()], $names);
 
         foreach (range(1, 3) as $minute) {
             $this->travelTo(Carbon::parse("2026-11-20 02:0{$minute}:00"));
@@ -57,7 +67,7 @@ class BackupTest extends TestCase
         }
 
         $this->assertCount(3, $service->list());
-        $this->assertSame('localmarket-20261120-020300.sqlite.gz', $service->list()->first()['name']);
+        $this->assertSame('localmarket-20261120-020300'.$this->ext(), $service->list()->first()['name']);
     }
 
     public function test_restore_brings_back_the_data_and_keeps_a_safety_copy(): void
@@ -79,7 +89,7 @@ class BackupTest extends TestCase
         $safety = $service->restore($backup);
 
         $this->assertSame('pedido correcto', DB::connection('restore_test')->table('notes')->value('body'));
-        $this->assertSame('localmarket-20261120-020500.sqlite.gz', $safety);
+        $this->assertSame('localmarket-20261120-020500.sqlite.gz', $safety); // restore_test is always SQLite
         $this->assertTrue(AuditLog::where('description', 'like', "Restauración de la copia {$backup}%")->exists());
         DB::purge('restore_test');
     }
@@ -88,8 +98,8 @@ class BackupTest extends TestCase
     {
         app(BackupService::class)->create();
 
-        $this->artisan('backup:restore', ['file' => 'localmarket-20261120-020000.sqlite.gz'])
-            ->expectsConfirmation('Se van a REEMPLAZAR todos los datos actuales por los de localmarket-20261120-020000.sqlite.gz. ¿Continuar?', 'no')
+        $this->artisan('backup:restore', ['file' => 'localmarket-20261120-020000'.$this->ext()])
+            ->expectsConfirmation('Se van a REEMPLAZAR todos los datos actuales por los de localmarket-20261120-020000'.$this->ext().'. ¿Continuar?', 'no')
             ->expectsOutputToContain('Restauración cancelada')
             ->assertFailed();
 
@@ -103,10 +113,10 @@ class BackupTest extends TestCase
         $this->actingAs($admin)->post('/admin/copias')->assertSessionHas('status');
         $this->actingAs($admin)->get('/admin/copias')
             ->assertOk()
-            ->assertSee('localmarket-20261120-020000.sqlite.gz')
+            ->assertSee('localmarket-20261120-020000'.$this->ext())
             ->assertSee('php artisan backup:restore');
 
-        $this->actingAs($admin)->get('/admin/copias/localmarket-20261120-020000.sqlite.gz')->assertOk()->assertDownload('localmarket-20261120-020000.sqlite.gz');
+        $this->actingAs($admin)->get('/admin/copias/localmarket-20261120-020000'.$this->ext())->assertOk()->assertDownload('localmarket-20261120-020000'.$this->ext());
         $this->actingAs($admin)->get('/admin/copias/..%2F..%2F.env')->assertNotFound();
         $this->actingAs($admin)->get('/admin/copias/database.sqlite')->assertNotFound();
     }

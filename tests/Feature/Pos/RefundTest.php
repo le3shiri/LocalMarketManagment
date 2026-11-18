@@ -64,14 +64,14 @@ class RefundTest extends TestCase
 
     public function test_partial_refund_creates_a_return_ticket_and_a_negative_payment_with_the_same_method(): void
     {
-        $this->refund([$this->line($this->oil) => 1])->assertRedirect(route('pos.refunds.show', 'D-000001'));
+        $this->refund([$this->line($this->oil) => 1])->assertRedirect(route('pos.refunds.show', Refund::sole()));
 
         $refund = Refund::sole();
         $this->assertSame('8.95', $refund->amount);
         $this->assertSame(PaymentMethod::Card, $refund->payment->method);
         $this->assertSame('-8.95', $refund->payment->amount);
 
-        $this->actingAs($this->admin)->get('/caja/devoluciones/D-000001')
+        $this->actingAs($this->admin)->get('/caja/devoluciones/'.Refund::sole()->code)
             ->assertSee('TICKET DE DEVOLUCIÓN')
             ->assertSeeHtml('data-refund-total>-8,95');
     }
@@ -128,7 +128,7 @@ class RefundTest extends TestCase
     public function test_ticket_lists_its_refunds_and_cashiers_can_not_refund_by_default(): void
     {
         $this->refund([$this->line($this->oil) => 1]);
-        $this->actingAs($this->admin)->get("/caja/tickets/{$this->sale->code}")->assertSee('D-000001');
+        $this->actingAs($this->admin)->get("/caja/tickets/{$this->sale->code}")->assertSee(Refund::sole()->code);
 
         $this->actingAs(User::factory()->withRole(Role::CASHIER)->create())
             ->post("/caja/tickets/{$this->sale->code}/devolucion", ['quantities' => [$this->line($this->oil) => 1], 'reason' => 'x'])

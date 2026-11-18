@@ -17,8 +17,11 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 
 - **Usuarios y roles**: inicio y cierre de sesión, registro de clientes, gestión de cuentas, roles y permisos (mínimo privilegio).
 - **Catálogo**: productos por unidad o por peso aproximado, perecederos, categorías, activación de la venta.
-- **Tienda online**: búsqueda, disponibilidad en tiempo real, carrito y checkout.
-- **Almacén**: dos stocks coordinados (tienda física / online), entradas de mercancía y libro de movimientos.
+- **Tienda online**: búsqueda, disponibilidad en tiempo real, carrito, checkout, «Mis pedidos» y seguimiento del estado en directo.
+- **Gestión de pedidos** (`/gestion/pedidos`): pedidos de web, teléfono y WhatsApp en un único panel; estados Pendiente → En preparación → Listo → Entregado, cancelación con motivo y detección de duplicados.
+- **Almacén**: dos stocks coordinados (tienda física / online), entradas de mercancía y libro de movimientos. La entrega descuenta lo reservado (con el peso real en productos por peso) y la cancelación lo libera.
+- **Supervisión** (`/admin/pedidos`): pedidos e importes por canal, filtros y pedidos por día y estado.
+- **Avisos**: email y notificación en la web al confirmar, cuando el pedido está listo y si se cancela.
 - **Historial**: registro de operaciones importantes para el administrador.
 
 ## Puesta en marcha (XAMPP)

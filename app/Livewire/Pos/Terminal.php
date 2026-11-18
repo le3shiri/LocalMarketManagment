@@ -3,6 +3,7 @@
 namespace App\Livewire\Pos;
 
 use App\Models\Product;
+use App\Support\SaleTotals;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -68,15 +69,66 @@ class Terminal extends Component
         $this->search = '';
         $this->message = null;
         unset($this->results);
+        $this->dispatch('focus-search');
+    }
+
+    /** Quantity typed by the cashier, or the weight read on the scale for loose products. */
+    public function setQuantity(int $productId, $quantity): void
+    {
+        $quantity = round((float) str_replace(',', '.', (string) $quantity), 3);
+
+        if (! isset($this->lines[$productId])) {
+            return;
+        }
+
+        $product = Product::findOrFail($productId);
+
+        // Units must be whole; weights are free (whatever the scale shows).
+        if ($product->unit_type->step() >= 1 && fmod($quantity, 1) !== 0.0) {
+            $this->message = "«{$product->name}» se vende por unidades.";
+
+            return;
+        }
+
+        if ($quantity <= 0) {
+            unset($this->lines[$productId]);
+        } else {
+            $this->lines[$productId] = $quantity;
+        }
+
+        $this->message = null;
+        $this->dispatch('focus-search');
+    }
+
+    public function removeLine(int $productId): void
+    {
+        unset($this->lines[$productId]);
+        $this->dispatch('focus-search');
+    }
+
+    public function clear(): void
+    {
+        $this->reset('lines', 'search', 'message');
+        $this->dispatch('focus-search');
+    }
+
+    #[Computed]
+    public function totals(): SaleTotals
+    {
+        $products = Product::whereIn('id', array_keys($this->lines))->get()->keyBy('id');
+
+        return SaleTotals::for(
+            collect($this->lines)
+                ->filter(fn ($quantity, $id) => isset($products[$id]))
+                ->map(fn ($quantity, $id) => ['product' => $products[$id], 'quantity' => (float) $quantity])
+                ->values()
+        );
     }
 
     public function render(): View
     {
-        $products = Product::whereIn('id', array_keys($this->lines))->get()->keyBy('id');
+        unset($this->totals);
 
-        return view('livewire.pos.terminal', [
-            'items' => collect($this->lines)->filter(fn ($q, $id) => isset($products[$id]))
-                ->map(fn ($quantity, $id) => ['product' => $products[$id], 'quantity' => $quantity]),
-        ]);
+        return view('livewire.pos.terminal');
     }
 }

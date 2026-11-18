@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\AuditLog;
 use App\Models\StockBatch;
 use App\Models\User;
+use App\Notifications\ExpiryAlertNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Collection;
 
 class ExpiryService
@@ -33,6 +35,39 @@ class ExpiryService
         }
 
         return $expired;
+    }
+
+    /**
+     * Notify warehouse staff about batches expiring within the warning window. A batch is
+     * announced at most once per day.
+     *
+     * @return int batches announced
+     */
+    public function sendAlerts(): int
+    {
+        $batches = StockBatch::with('product')
+            ->where('status', StockBatch::ACTIVE)
+            ->where('quantity_remaining', '>', 0)
+            ->whereNotNull('expires_at')
+            ->whereDate('expires_at', '>=', today())
+            ->whereDate('expires_at', '<=', today()->addDays((int) config('shop.expiry_warning_days')))
+            ->where(fn ($q) => $q->whereNull('alerted_on')->orWhereDate('alerted_on', '<', today()))
+            ->orderBy('expires_at')
+            ->get();
+
+        if ($batches->isEmpty()) {
+            return 0;
+        }
+
+        $recipients = User::where('is_active', true)
+            ->whereHas('role.permissions', fn ($q) => $q->where('name', 'stock.exit'))
+            ->get();
+
+        Notification::send($recipients, new ExpiryAlertNotification($batches));
+
+        StockBatch::whereKey($batches->modelKeys())->update(['alerted_on' => today()]);
+
+        return $batches->count();
     }
 
     /** Staff confirm the expired units were physically taken off the shelf. */

@@ -32,7 +32,10 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 - **Ventas** (`/admin/ventas`): ventas, ticket medio, cobros por método (caja + pedidos) y devoluciones.
 - **Supervisión** (`/admin/pedidos`): pedidos e importes por canal, filtros y pedidos por día y estado.
 - **Avisos**: email y notificación en la web al confirmar, cuando el pedido está listo y si se cancela.
-- **Historial**: registro de operaciones importantes para el administrador.
+- **Panel** (`/admin`): ventas de hoy frente a la semana anterior, pedidos por estado y canal, ventas de 14 días y alertas de almacén.
+- **Informes** (`/admin/informes`): ventas por día, semana o mes (caja, pedidos, devoluciones, neto e IVA), imprimibles y en CSV.
+- **Historial** (`/admin/historial`): registro de operaciones con marca de **operaciones sensibles**. Las entradas están encadenadas con hash SHA-256, así que cualquier modificación o borrado se detecta (`php artisan audit:verify`).
+- **Copias de seguridad** (`/admin/copias`): copia diaria comprimida con rotación, descarga y restauración por consola. Ver [docs/BACKUP.md](docs/BACKUP.md).
 
 ## Puesta en marcha (XAMPP)
 
@@ -72,6 +75,7 @@ Todas usan la contraseña `password` (solo para entorno local).
 ```bash
 php artisan stock:block-expired   # 00:05 · bloquea los lotes caducados
 php artisan stock:expiry-alerts   # 07:30 · avisa al almacén de lo que caduca pronto
+php artisan backup:run            # 02:00 · copia de seguridad de la base de datos
 ```
 
 En producción basta con una entrada de cron: `* * * * * php artisan schedule:run`.

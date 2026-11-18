@@ -13,6 +13,7 @@ enum MovementType: string
     case Exit = 'exit';
     case Adjustment = 'adjustment';
     case Transfer = 'transfer';
+    case Expiry = 'expiry';
 
     public function label(): string
     {
@@ -26,6 +27,7 @@ enum MovementType: string
             self::Exit => 'Salida de mercancía',
             self::Adjustment => 'Ajuste por recuento',
             self::Transfer => 'Transferencia entre canales',
+            self::Expiry => 'Bloqueo por caducidad',
         };
     }
 }

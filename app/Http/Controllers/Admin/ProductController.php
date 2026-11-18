@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -46,6 +47,30 @@ class ProductController extends Controller
         $product->save();
 
         return redirect()->route('admin.products.index')->with('status', "Producto «{$product->name}» creado.");
+    }
+
+    public function edit(Product $product): View
+    {
+        return view('admin.products.form', $this->formData($product));
+    }
+
+    public function update(ProductRequest $request, Product $product): RedirectResponse
+    {
+        $product->fill($request->productData());
+
+        if ($request->hasFile('image')) {
+            $previous = $product->image_path;
+            $product->image_path = $request->file('image')->store('products', 'public');
+        }
+
+        $product->save();
+
+        // Only remove the old file once the new one is safely referenced.
+        if (isset($previous)) {
+            Storage::disk('public')->delete($previous);
+        }
+
+        return redirect()->route('admin.products.index')->with('status', "Producto «{$product->name}» actualizado.");
     }
 
     private function formData(Product $product): array

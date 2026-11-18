@@ -23,7 +23,12 @@ class NotificationController extends Controller
 
         $code = $notification->data['order_code'] ?? null;
 
-        return $code ? redirect()->route('orders.show', $code) : redirect()->route('notifications.index');
+        return match (true) {
+            $code !== null => redirect()->route('orders.show', $code),
+            // Only internal links stored by our own notifications.
+            isset($notification->data['url']) && str_starts_with($notification->data['url'], url('/')) => redirect()->to($notification->data['url']),
+            default => redirect()->route('notifications.index'),
+        };
     }
 
     public function markAllRead(Request $request): RedirectResponse

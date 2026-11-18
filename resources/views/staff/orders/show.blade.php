@@ -30,7 +30,12 @@
                         @foreach ($order->items as $item)
                             <tr>
                                 <td class="py-2">{{ $item->product_name }} <span class="font-mono text-xs text-stone-400">{{ $item->sku }}</span></td>
-                                <td class="py-2 text-right">{{ Number::format($item->quantity, maxPrecision: 2, locale: 'es') }} {{ $item->unit_type->suffix() }}</td>
+                                <td class="py-2 text-right">
+                                    {{ Number::format($item->delivered_quantity ?? $item->quantity, maxPrecision: 3, locale: 'es') }} {{ $item->unit_type->suffix() }}
+                                    @if ($item->delivered_quantity !== null && abs($item->delivered_quantity - $item->quantity) > 0.0005)
+                                        <span class="block text-xs text-stone-400">pedido {{ Number::format($item->quantity, maxPrecision: 3, locale: 'es') }}</span>
+                                    @endif
+                                </td>
                                 <td class="py-2 text-right">{{ Number::currency((float) $item->unit_price, 'EUR', 'es') }}</td>
                                 <td class="py-2 text-right">{{ Number::currency((float) $item->line_total, 'EUR', 'es') }}</td>
                             </tr>
@@ -50,6 +55,20 @@
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="status" value="{{ $next->value }}">
+                        @if ($next === \App\Enums\OrderStatus::Delivered)
+                            @foreach ($order->items->where('unit_type', \App\Enums\UnitType::Weight) as $item)
+                                <div class="space-y-1">
+                                    <label for="weight-{{ $item->id }}" class="block text-sm font-medium text-stone-700">
+                                        Peso real · {{ $item->product_name }}
+                                        <span class="font-normal text-stone-400">(pedido {{ Number::format($item->quantity, maxPrecision: 2, locale: 'es') }} kg)</span>
+                                    </label>
+                                    <input id="weight-{{ $item->id }}" name="weights[{{ $item->id }}]" type="number" step="0.005" min="0.005"
+                                           value="{{ old("weights.{$item->id}", $item->quantity) }}"
+                                           class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                                    @error("weights.{$item->id}") <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                            @endforeach
+                        @endif
                         <x-input name="note" label="Nota (opcional)" />
                         <x-button class="w-full">{{ $order->status->actionLabel() }}</x-button>
                     </form>

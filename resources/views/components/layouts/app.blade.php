@@ -31,6 +31,9 @@
                             @endif
                         </x-nav-link>
                     @endif
+                    @if (Route::has('orders.index') && auth()->user()->can('cart.use'))
+                        <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">Mis pedidos</x-nav-link>
+                    @endif
                     @if (Route::has('admin.products.index') && auth()->user()->can('products.manage'))
                         <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">Productos</x-nav-link>
                     @endif

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\MovementType;
+use App\Exceptions\InsufficientStockException;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\StockMovement;
@@ -36,6 +37,49 @@ class StockService
             $this->log($stock, MovementType::Entry, $user, store: $storeQty, online: $onlineQty, reference: $reference, reason: $reason);
 
             return $stock;
+        });
+    }
+
+    /**
+     * Reserve online stock for every line of an order in one indivisible operation:
+     * either all lines are reserved or none is (proposal, section 5 "Reserva indivisible").
+     * Rows are locked in product id order so concurrent checkouts can't deadlock.
+     *
+     * @param  array<int, float>  $lines  product_id => quantity
+     *
+     * @throws InsufficientStockException
+     */
+    public function reserve(array $lines, ?User $user, string $reference): void
+    {
+        DB::transaction(function () use ($lines, $user, $reference) {
+            ksort($lines);
+
+            $stocks = ProductStock::with('product')
+                ->whereIn('product_id', array_keys($lines))
+                ->orderBy('product_id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('product_id');
+
+            $shortages = [];
+            foreach ($lines as $productId => $quantity) {
+                $stock = $stocks[$productId] ?? null;
+                if (! $stock || ! $stock->product->is_active || $stock->available_online < $quantity) {
+                    $shortages[$productId] = $stock?->available_online ?? 0.0;
+                }
+            }
+
+            if ($shortages !== []) {
+                throw new InsufficientStockException($shortages, $stocks);
+            }
+
+            foreach ($lines as $productId => $quantity) {
+                $stock = $stocks[$productId];
+                $stock->reserved_qty = round($stock->reserved_qty + $quantity, 3);
+                $stock->save();
+
+                $this->log($stock, MovementType::Reserve, $user, reserved: $quantity, reference: $reference);
+            }
         });
     }
 

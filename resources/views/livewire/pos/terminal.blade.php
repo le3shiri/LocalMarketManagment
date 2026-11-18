@@ -6,9 +6,11 @@
             <span class="text-sm text-stone-500">{{ auth()->user()->name }} · {{ now()->format('d/m/Y') }}</span>
         </div>
 
-        <form wire:submit="scan" class="relative">
-            <input type="search" wire:model.live.debounce.200ms="search" autofocus autocomplete="off"
-                   x-data x-init="$el.focus()" @focus-search.window="$nextTick(() => $el.focus())"
+        {{-- Scanners press Enter a few ms after the last digit, before the debounced model update
+             reaches the server, so the typed value is passed to scan() directly. --}}
+        <form wire:submit="scan($refs.search.value)" x-data class="relative">
+            <input type="search" wire:model.live.debounce.200ms="search" autofocus autocomplete="off" x-ref="search"
+                   x-init="$el.focus()" @focus-search.window="$nextTick(() => $el.focus())"
                    placeholder="Escanea el código de barras o escribe el nombre / SKU y pulsa Enter"
                    class="block w-full rounded-xl border-2 border-emerald-500 px-4 py-3 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
                    aria-label="Buscar producto o escanear código">

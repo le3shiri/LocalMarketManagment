@@ -17,6 +17,7 @@
                 @endforeach
             </select>
             <x-button variant="secondary">Filtrar</x-button>
+            <x-csv-link :href="route('warehouse.write-offs.export', request()->query())" />
         </form>
     </div>
 

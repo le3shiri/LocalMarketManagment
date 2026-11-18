@@ -8,7 +8,10 @@
             <h1 class="text-2xl font-bold text-stone-900">Productos más vendidos</h1>
             <p class="text-sm text-stone-500">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }} · {{ $channels[$filters['channel']] }} · tendencia frente al periodo anterior de la misma duración</p>
         </div>
+        <div class="flex gap-2">
+        <x-csv-link :href="route('admin.reports.top.export', request()->query())" />
         <button type="button" onclick="window.print()" class="no-print rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50">Imprimir</button>
+        </div>
     </div>
 
     <form method="GET" class="no-print mb-4 flex flex-wrap items-end gap-2">

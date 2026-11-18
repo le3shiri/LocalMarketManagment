@@ -9,17 +9,37 @@ use App\Models\Payment;
 use App\Models\Refund;
 use App\Models\Sale;
 use App\Models\User;
+use App\Support\CsvExport;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Sales and payments for the owner: counter tickets plus orders paid on delivery.
  */
 class SalesReportController extends Controller
 {
-    public function index(Request $request): View
+    /** Till tickets with the same filters as the screen. */
+    public function export(Request $request): StreamedResponse
+    {
+        [$from, $to, , $sales] = $this->salesQuery($request);
+
+        return CsvExport::download('tickets',
+            ['Ticket', 'Fecha', 'Cajero/a', 'Líneas', 'Método', 'Total', 'Entregado', 'Cambio', 'Devuelto'],
+            fn ($write) => $sales->with(['payment', 'cashier'])->withCount('items')->withSum('refunds', 'amount')->orderBy('id')
+                ->chunk(500, fn ($chunk) => $chunk->each(fn ($s) => $write([
+                    $s->code, $s->created_at, $s->cashier?->name, $s->items_count, $s->payment?->method,
+                    CsvExport::money($s->total), $s->payment?->tendered ? CsvExport::money($s->payment->tendered) : null,
+                    $s->payment?->change ? CsvExport::money($s->payment->change) : null, CsvExport::money($s->refunds_sum_amount),
+                ]))),
+            "tickets de caja {$from->format('d/m/Y')}–{$to->format('d/m/Y')}",
+        );
+    }
+
+    /** @return array{0: CarbonImmutable, 1: CarbonImmutable, 2: array, 3: \Illuminate\Database\Eloquent\Builder} */
+    private function salesQuery(Request $request): array
     {
         $filters = $request->validate([
             'from' => ['nullable', 'date'],
@@ -36,6 +56,13 @@ class SalesReportController extends Controller
             ->whereBetween('created_at', [$from, $to])
             ->when($filters['cashier'] ?? null, fn ($q, $id) => $q->where('user_id', $id))
             ->when($filters['method'] ?? null, fn ($q, $method) => $q->whereHas('payment', fn ($q) => $q->where('method', $method)));
+
+        return [$from, $to, $filters, $sales];
+    }
+
+    public function index(Request $request): View
+    {
+        [$from, $to, $filters, $sales] = $this->salesQuery($request);
 
         $payments = Payment::query()
             ->whereBetween('created_at', [$from, $to])

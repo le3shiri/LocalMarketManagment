@@ -21,4 +21,10 @@ return [
     | go back to the shelf.
     */
     'refund_days' => (int) env('SHOP_REFUND_DAYS', 15),
+
+    /*
+    | Expiry control: batches expiring within this many days are flagged (configurable,
+    | proposal section 5: "avisa unos días antes").
+    */
+    'expiry_warning_days' => (int) env('SHOP_EXPIRY_WARNING_DAYS', 3),
 ];

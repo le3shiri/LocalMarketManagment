@@ -47,13 +47,42 @@ class CatalogSeeder extends Seeder
         ]],
     ];
 
+    /**
+     * Opening stock: ~25 % of each product goes to the online channel, as suggested
+     * in the proposal. A couple of products start low/out of stock to show the alerts.
+     */
+    private function seedStock(Product $product): void
+    {
+        $stock = $product->stock()->firstOrCreate();
+
+        if ($stock->on_hand > 0) {
+            return; // never overwrite real counts
+        }
+
+        [$onHand, $minAlert] = match (true) {
+            $product->sku === 'CAR-001' => [2, 3],         // below minimum
+            $product->sku === 'PAN-002' => [0, 2],         // sold out
+            $product->unit_type === UnitType::Weight => [20, 3],
+            default => [40, 8],
+        };
+
+        $online = $product->unit_type === UnitType::Weight ? round($onHand * 0.3, 2) : floor($onHand * 0.25);
+
+        $stock->update([
+            'on_hand' => $onHand,
+            'online_qty' => $online,
+            'store_qty' => $onHand - $online,
+            'min_alert' => $minAlert,
+        ]);
+    }
+
     public function run(): void
     {
         foreach (self::CATALOG as $order => [$name, $description, $products]) {
             $category = Category::updateOrCreate(['name' => $name], ['description' => $description, 'sort_order' => $order + 1]);
 
             foreach ($products as [$product, $sku, $price, $unit, $perishable, $location]) {
-                Product::updateOrCreate(['sku' => $sku], [
+                $model = Product::updateOrCreate(['sku' => $sku], [
                     'category_id' => $category->id,
                     'name' => $product,
                     'price' => $price,
@@ -61,6 +90,8 @@ class CatalogSeeder extends Seeder
                     'is_perishable' => $perishable,
                     'location' => $location,
                 ]);
+
+                $this->seedStock($model);
             }
         }
     }

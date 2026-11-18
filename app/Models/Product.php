@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
@@ -46,6 +47,14 @@ class Product extends Model
                 $product->slug = static::uniqueSlug($product);
             }
         });
+
+        // Every product has exactly one stock row, starting at zero.
+        static::created(fn (Product $product) => $product->stock()->create());
+    }
+
+    public function stock(): HasOne
+    {
+        return $this->hasOne(ProductStock::class)->withDefault();
     }
 
     public function category(): BelongsTo
@@ -72,6 +81,14 @@ class Product extends Model
     protected function formattedPrice(): Attribute
     {
         return Attribute::get(fn () => Number::currency((float) $this->price, 'EUR', 'es').' / '.$this->unit_type->suffix());
+    }
+
+    /** "12 ud" or "1,25 kg" */
+    public function formatQuantity(float $quantity): string
+    {
+        $decimals = $this->unit_type === UnitType::Weight ? 2 : 0;
+
+        return Number::format($quantity, maxPrecision: $decimals, locale: 'es').' '.$this->unit_type->suffix();
     }
 
     private static function uniqueSlug(Product $product): string

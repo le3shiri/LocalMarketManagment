@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Availability;
 use App\Enums\UnitType;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -81,6 +82,12 @@ class Product extends Model
     protected function formattedPrice(): Attribute
     {
         return Attribute::get(fn () => Number::currency((float) $this->price, 'EUR', 'es').' / '.$this->unit_type->suffix());
+    }
+
+    /** Online availability as the web shop and the assistant see it. */
+    public function availability(): Availability
+    {
+        return Availability::fromQuantity($this->stock->available_online);
     }
 
     /** "12 ud" or "1,25 kg" */

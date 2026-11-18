@@ -15,7 +15,7 @@ class CatalogController extends Controller
         $current = $categories->firstWhere('slug', $request->query('categoria'));
 
         $products = Product::active()
-            ->with('category')
+            ->with(['category', 'stock'])
             ->when($current, fn ($q) => $q->whereBelongsTo($current))
             ->orderBy('name')
             ->paginate(24)
@@ -28,6 +28,6 @@ class CatalogController extends Controller
     {
         abort_unless($product->is_active, 404);
 
-        return view('catalog.show', ['product' => $product->load('category')]);
+        return view('catalog.show', ['product' => $product->load(['category', 'stock'])]);
     }
 }

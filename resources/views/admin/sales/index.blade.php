@@ -26,7 +26,11 @@
     </div>
     @error('to') <p class="mb-3 text-xs text-red-600">{{ $message }}</p> @enderror
 
-    <div class="mb-6 grid gap-4 sm:grid-cols-3">
+    <div class="mb-6 grid gap-4 sm:grid-cols-4">
+        <div class="rounded-xl border border-stone-200 bg-white p-4">
+            <p class="text-xs uppercase tracking-wide text-stone-400">Devoluciones</p>
+            <p class="mt-1 text-2xl font-bold text-red-700" data-refunds-total>-{{ Number::currency($refundsTotal, 'EUR', 'es') }}</p>
+        </div>
         <div class="rounded-xl border border-stone-200 bg-white p-4">
             <p class="text-xs uppercase tracking-wide text-stone-400">Ventas en caja</p>
             <p class="mt-1 text-2xl font-bold" data-sales-total>{{ Number::currency($salesTotal, 'EUR', 'es') }}</p>

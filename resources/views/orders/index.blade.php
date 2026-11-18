@@ -22,6 +22,10 @@
                         <p class="w-24 text-right font-medium">{{ Number::currency((float) $order->total, 'EUR', 'es') }}</p>
                         <x-order-status :status="$order->status" />
                     </a>
+                    <form method="POST" action="{{ route('orders.repeat', $order) }}" class="-mt-2 px-4 pb-3 text-right">
+                        @csrf
+                        <button class="text-xs font-medium text-emerald-700 hover:underline">Repetir pedido</button>
+                    </form>
                 </li>
             @endforeach
         </ul>

@@ -88,6 +88,77 @@ class StockService
         });
     }
 
+    /**
+     * Hand an order to the customer: the reserved units leave the online stock and the
+     * shop. For weighted products the real weight may differ from what was reserved; the
+     * difference is taken from (or returned to) the free online stock and noted in the ledger.
+     *
+     * @param  array<int, array{reserved: float, delivered: float}>  $lines  product_id => quantities
+     *
+     * @throws InvalidArgumentException when the extra weight isn't available online
+     */
+    public function deliver(array $lines, ?User $user, string $reference): void
+    {
+        DB::transaction(function () use ($lines, $user, $reference) {
+            foreach ($this->lockMany(array_keys($lines)) as $productId => $stock) {
+                ['reserved' => $reserved, 'delivered' => $delivered] = $lines[$productId];
+
+                // Units online that nobody else has promised: ours (reserved) plus the free ones.
+                $usable = $stock->online_qty - max(0, $stock->reserved_qty - $reserved);
+                if ($delivered < 0 || $delivered > $usable + 0.0005) {
+                    throw new InvalidArgumentException(
+                        "No hay stock online suficiente para entregar {$stock->product->formatQuantity($delivered)} de «{$stock->product->name}»."
+                    );
+                }
+
+                $stock->reserved_qty = max(0, round($stock->reserved_qty - $reserved, 3));
+                $stock->online_qty = round($stock->online_qty - $delivered, 3);
+                $stock->on_hand = max(0, round($stock->on_hand - $delivered, 3));
+                $stock->save();
+
+                $reason = abs($delivered - $reserved) > 0.0005
+                    ? 'Peso real '.$stock->product->formatQuantity($delivered).' (pedido '.$stock->product->formatQuantity($reserved).')'
+                    : null;
+
+                $this->log($stock, MovementType::Delivery, $user, online: -$delivered, reserved: -$reserved, reference: $reference, reason: $reason);
+            }
+        });
+    }
+
+    /**
+     * Give reserved units back to the online stock (cancelled order or expired cart).
+     *
+     * @param  array<int, float>  $lines  product_id => reserved quantity
+     */
+    public function release(array $lines, ?User $user, string $reference, ?string $reason = null): void
+    {
+        DB::transaction(function () use ($lines, $user, $reference, $reason) {
+            foreach ($this->lockMany(array_keys($lines)) as $productId => $stock) {
+                $quantity = min($lines[$productId], $stock->reserved_qty);
+                $stock->reserved_qty = round($stock->reserved_qty - $quantity, 3);
+                $stock->save();
+
+                $this->log($stock, MovementType::Release, $user, reserved: -$quantity, reference: $reference, reason: $reason);
+            }
+        });
+    }
+
+    /**
+     * Lock several stock rows in product id order (consistent order = no deadlocks).
+     *
+     * @param  array<int>  $productIds
+     * @return \Illuminate\Support\Collection<int, ProductStock>
+     */
+    protected function lockMany(array $productIds)
+    {
+        return ProductStock::with('product')
+            ->whereIn('product_id', $productIds)
+            ->orderBy('product_id')
+            ->lockForUpdate()
+            ->get()
+            ->keyBy('product_id');
+    }
+
     /** Lock the product's stock row for the rest of the current transaction. */
     protected function lock(Product $product): ProductStock
     {

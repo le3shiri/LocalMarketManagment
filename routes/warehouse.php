@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Warehouse\ReplenishmentController;
 use App\Http\Controllers\Warehouse\StockController;
+use App\Http\Controllers\Warehouse\StockCountController;
 use App\Http\Controllers\Warehouse\StockEntryController;
 use App\Http\Controllers\Warehouse\StockExitController;
 use App\Http\Controllers\Warehouse\StockMovementController;
@@ -24,5 +25,10 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
     Route::middleware('can:stock.exit')->group(function () {
         Route::get('salidas/nueva', [StockExitController::class, 'create'])->name('exits.create');
         Route::post('salidas', [StockExitController::class, 'store'])->name('exits.store');
+    });
+
+    Route::middleware('can:stock.adjust')->group(function () {
+        Route::get('recuentos/nuevo', [StockCountController::class, 'create'])->name('counts.create');
+        Route::post('recuentos', [StockCountController::class, 'store'])->name('counts.store');
     });
 });

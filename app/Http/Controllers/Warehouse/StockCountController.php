@@ -57,7 +57,7 @@ class StockCountController extends Controller
         }
 
         $signed = ($difference > 0 ? '+' : '').$product->formatQuantity($difference);
-        AuditLog::record('stock', "Ajuste por recuento de «{$product->name}»: {$signed}", $product, ['motivo' => $data['reason']]);
+        AuditLog::record('stock', "Ajuste por recuento de «{$product->name}»: {$signed}", $product, ['motivo' => $data['reason']], sensitive: true);
 
         return redirect()->route('warehouse.counts.create')->with('status', "Ajuste registrado: {$product->name} ({$signed}).");
     }

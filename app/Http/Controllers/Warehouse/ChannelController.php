@@ -75,7 +75,7 @@ class ChannelController extends Controller
         Setting::set('online_share', (string) $data['online_share']);
         Setting::set('online_share_fresh', (string) $data['online_share_fresh']);
 
-        AuditLog::record('stock', "Reparto online: {$data['online_share']} % general, {$data['online_share_fresh']} % frescos");
+        AuditLog::record('stock', "Reparto online: {$data['online_share']} % general, {$data['online_share_fresh']} % frescos", sensitive: true);
 
         return back()->with('status', 'Porcentajes del canal online guardados.');
     }
@@ -87,7 +87,7 @@ class ChannelController extends Controller
 
         $changed = $allocator->rebalance($request->user(), $category);
 
-        AuditLog::record('stock', 'Reparto automático aplicado'.($category ? " a «{$category->name}»" : ' a todo el catálogo')." ({$changed} productos)");
+        AuditLog::record('stock', 'Reparto automático aplicado'.($category ? " a «{$category->name}»" : ' a todo el catálogo')." ({$changed} productos)", sensitive: true);
 
         return back()->with('status', "Reparto aplicado: {$changed} productos ajustados.");
     }

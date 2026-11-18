@@ -9,6 +9,7 @@ use App\Http\Controllers\Warehouse\StockCountController;
 use App\Http\Controllers\Warehouse\StockEntryController;
 use App\Http\Controllers\Warehouse\StockExitController;
 use App\Http\Controllers\Warehouse\StockMovementController;
+use App\Http\Controllers\Warehouse\WriteOffController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function () {
@@ -19,6 +20,7 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
         Route::get('reposicion', [ReplenishmentController::class, 'index'])->name('replenishment.index');
         Route::get('productos/{product}/lotes', [BatchController::class, 'index'])->name('batches.index');
         Route::get('caducidades', [ExpiryController::class, 'index'])->name('expiry.index');
+        Route::get('mermas', [WriteOffController::class, 'index'])->name('write-offs.index');
     });
 
     Route::middleware('can:stock.entry')->group(function () {
@@ -30,6 +32,7 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
     Route::middleware('can:stock.exit')->group(function () {
         Route::get('salidas/nueva', [StockExitController::class, 'create'])->name('exits.create');
         Route::post('salidas', [StockExitController::class, 'store'])->name('exits.store');
+        Route::post('mermas', [WriteOffController::class, 'store'])->name('write-offs.store');
         Route::post('caducidades/bloquear', [ExpiryController::class, 'block'])->name('expiry.block');
         Route::patch('lotes/{batch}/retirada', [ExpiryController::class, 'withdraw'])->name('expiry.withdraw');
     });

@@ -5,7 +5,8 @@
     ['warehouse.replenishment.index', 'Reposición', 'stock.view'],
     ['warehouse.expiry.index', 'Caducidades', 'stock.view'],
     ['warehouse.entries.create', 'Entrada', 'stock.entry'],
-    ['warehouse.exits.create', 'Salida / merma', 'stock.exit'],
+    ['warehouse.exits.create', 'Salidas', 'stock.exit'],
+    ['warehouse.write-offs.index', 'Mermas', 'stock.view'],
     ['warehouse.counts.create', 'Recuento', 'stock.adjust'],
     ['warehouse.transfers.create', 'Canales', 'stock.transfer'],
 ])

@@ -70,6 +70,17 @@ class PosProductSearchTest extends TestCase
             ->assertSee('Leche entera 1 L');
     }
 
+    public function test_fast_scanner_input_is_read_from_the_submitted_value(): void
+    {
+        $milk = Product::factory()->create(['barcode' => self::MILK_EAN]);
+
+        // The scanner's Enter arrives before the debounced "search" update reaches the server.
+        $this->terminal()
+            ->call('scan', self::MILK_EAN)
+            ->call('scan', self::MILK_EAN)
+            ->assertSet('lines', [$milk->id => 2.0]);
+    }
+
     public function test_searching_by_name_lists_matches_to_click(): void
     {
         $bread = Product::factory()->create(['name' => 'Pan de payés']);

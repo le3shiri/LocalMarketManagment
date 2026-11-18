@@ -20,6 +20,7 @@ class OrderService
         private readonly CartService $cart,
         private readonly Slots $slots,
         private readonly StockService $stock,
+        private readonly OrderWorkflow $workflow,
     ) {}
 
     /**
@@ -83,6 +84,7 @@ class OrderService
             $this->cart->clear($user);
 
             $order->refresh();
+            $this->workflow->recordCreation($order, $user);
             AuditLog::record('order', "Pedido {$order->code} confirmado ({$order->fulfillment->label()}, ".number_format((float) $order->total, 2, ',', '.').' €)', $order, user: $user);
 
             return $order;

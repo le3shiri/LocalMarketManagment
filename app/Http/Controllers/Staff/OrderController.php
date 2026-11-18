@@ -33,7 +33,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        return view('staff.orders.show', ['order' => $order->load(['items', 'user', 'statusChanges.user'])]);
+        return view('staff.orders.show', ['order' => $order->load(['items', 'user', 'creator', 'statusChanges.user'])]);
     }
 
     public function advance(Request $request, Order $order, OrderWorkflow $workflow): RedirectResponse

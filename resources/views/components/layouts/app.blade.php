@@ -22,6 +22,9 @@
                 @endif
 
                 @auth
+                    @if (Route::has('admin.dashboard') && auth()->user()->can('dashboard.view'))
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard', 'admin.reports.*')">Panel</x-nav-link>
+                    @endif
                     @if (Route::has('cart.index') && auth()->user()->can('cart.use'))
                         <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*', 'checkout.*')">
                             Carrito

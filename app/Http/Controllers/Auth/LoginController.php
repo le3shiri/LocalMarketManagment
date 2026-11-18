@@ -22,7 +22,10 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        // The owner lands on the dashboard; everybody else on the home page.
+        $home = $request->user()->can('dashboard.view') ? route('admin.dashboard') : route('home');
+
+        return redirect()->intended($home);
     }
 
     public function destroy(Request $request): RedirectResponse

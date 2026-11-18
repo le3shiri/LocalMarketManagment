@@ -2,10 +2,15 @@
 
 use App\Http\Controllers\Warehouse\StockController;
 use App\Http\Controllers\Warehouse\StockEntryController;
+use App\Http\Controllers\Warehouse\StockMovementController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function () {
-    Route::get('inventario', [StockController::class, 'index'])->middleware('can:stock.view')->name('stock.index');
+    Route::middleware('can:stock.view')->group(function () {
+        Route::get('inventario', [StockController::class, 'index'])->name('stock.index');
+        Route::get('movimientos', [StockMovementController::class, 'index'])->name('movements.index');
+        Route::get('movimientos/exportar', [StockMovementController::class, 'export'])->name('movements.export');
+    });
 
     Route::middleware('can:stock.entry')->group(function () {
         Route::get('entradas/nueva', [StockEntryController::class, 'create'])->name('entries.create');

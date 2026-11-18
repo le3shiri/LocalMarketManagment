@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,8 @@ class RegisterController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ], [], ['name' => 'nombre', 'phone' => 'teléfono', 'password' => 'contraseña']);
 
-        $user = User::create($data);
+        // Self-registration always creates customers; staff accounts are created by an admin.
+        $user = User::create($data + ['role_id' => Role::idFor(Role::CUSTOMER)]);
 
         event(new Registered($user));
 

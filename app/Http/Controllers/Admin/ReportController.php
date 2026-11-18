@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Services\Reports\SalesReport;
 use App\Services\Reports\TopProducts;
+use App\Support\CsvExport;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -26,24 +27,40 @@ class ReportController extends Controller
     {
         [$from, $to, $group] = $this->period($request);
         $data = $report->build($from, $to, $group);
-        $n = fn (float $v) => number_format($v, 2, ',', '');
+        $m = [CsvExport::class, 'money'];
 
-        return response()->streamDownload(function () use ($data, $n) {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Periodo', 'Tickets', 'Ventas caja', 'Pedidos cobrados', 'Devoluciones', 'Neto'], ';');
-            foreach ($data['rows'] as $row) {
-                fputcsv($out, [$row['label'], $row['tickets'], $n($row['till']), $n($row['orders']), $n($row['refunds']), $n($row['net'])], ';');
-            }
-            $t = $data['totals'];
-            fputcsv($out, ['TOTAL', $t['tickets'], $n($t['till']), $n($t['orders']), $n($t['refunds']), $n($t['net'])], ';');
-            fputcsv($out, [], ';');
-            fputcsv($out, ['IVA (caja)', 'Base', 'Cuota', 'Total'], ';');
-            foreach ($data['vat'] as $rate => $vat) {
-                fputcsv($out, ["{$rate} %", $n($vat['base']), $n($vat['vat']), $n($vat['total'])], ';');
-            }
-            fclose($out);
-        }, "informe-ventas-{$from->format('Ymd')}-{$to->format('Ymd')}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
+        return CsvExport::download("informe-ventas-{$from->format('Ymd')}-{$to->format('Ymd')}",
+            ['Periodo', 'Tickets', 'Ventas caja', 'Pedidos cobrados', 'Devoluciones', 'Neto'],
+            function ($write) use ($data, $m) {
+                foreach ($data['rows'] as $row) {
+                    $write([$row['label'], $row['tickets'], $m($row['till']), $m($row['orders']), $m($row['refunds']), $m($row['net'])]);
+                }
+                $t = $data['totals'];
+                $write(['TOTAL', $t['tickets'], $m($t['till']), $m($t['orders']), $m($t['refunds']), $m($t['net'])]);
+                $write([]);
+                $write(['IVA (caja)', 'Base', 'Cuota', 'Total']);
+                foreach ($data['vat'] as $rate => $vat) {
+                    $write(["{$rate} %", $m($vat['base']), $m($vat['vat']), $m($vat['total'])]);
+                }
+            },
+            "informe de ventas {$from->format('d/m/Y')}–{$to->format('d/m/Y')}",
+        );
+    }
+
+    public function exportTopProducts(Request $request, TopProducts $top): StreamedResponse
+    {
+        [$from, $to] = $this->period($request);
+        $filters = $this->topFilters($request);
+        $rows = $top->build($from, $to, $filters['channel'], $filters['category'], $filters['sort'], $filters['limit']);
+
+        return CsvExport::download('mas-vendidos',
+            ['Puesto', 'Producto', 'Categoría', 'Cantidad', 'Unidad', 'Importe', 'Periodo anterior', 'Tendencia %'],
+            fn ($write) => $rows->each(fn ($r) => $write([
+                $r['rank'], $r['name'], $r['category'], $r['quantity'], $r['unit'],
+                CsvExport::money($r['revenue']), CsvExport::money($r['previous_revenue']), $r['trend'] ?? 'Nuevo',
+            ])),
+            "productos más vendidos {$from->format('d/m/Y')}–{$to->format('d/m/Y')}",
+        );
     }
 
     public function topProducts(Request $request, TopProducts $top): View

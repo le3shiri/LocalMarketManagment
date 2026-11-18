@@ -49,6 +49,7 @@
         <input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="rounded-lg border border-stone-300 px-3 py-2 text-sm" aria-label="Desde">
         <input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="rounded-lg border border-stone-300 px-3 py-2 text-sm" aria-label="Hasta">
         <x-button variant="secondary">Filtrar</x-button>
+        <x-csv-link :href="route('admin.orders.export', request()->query())" />
         @if (array_filter($filters))
             <a href="{{ route('admin.orders.index') }}" class="px-2 py-2 text-sm text-stone-500 hover:underline">Quitar filtros</a>
         @endif

@@ -7,10 +7,12 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Support\CsvExport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * All orders from every channel for the owner: filters, totals per channel and
@@ -19,9 +21,25 @@ use Illuminate\View\View;
  */
 class OrderSupervisionController extends Controller
 {
-    public function index(Request $request): View
+    /** Orders with the same filters as the screen. */
+    public function export(Request $request): StreamedResponse
     {
-        $filters = $request->validate([
+        $query = $this->filtered($this->validated($request));
+
+        return CsvExport::download('pedidos',
+            ['Pedido', 'Creado', 'Canal', 'Estado', 'Modalidad', 'Día', 'Franja', 'Cliente', 'Teléfono', 'Pago', 'Subtotal', 'Envío', 'Total'],
+            fn ($write) => $query->orderBy('id')->chunk(500, fn ($orders) => $orders->each(fn ($o) => $write([
+                $o->code, $o->created_at, $o->channelLabel(), $o->status, $o->fulfillment, $o->slot_date->format('d/m/Y'), $o->slot,
+                $o->contact_name, $o->contact_phone, $o->payment_method,
+                CsvExport::money($o->subtotal), CsvExport::money($o->delivery_fee), CsvExport::money($o->total),
+            ]))),
+            'pedidos (supervisión)',
+        );
+    }
+
+    private function validated(Request $request): array
+    {
+        return $request->validate([
             'q' => ['nullable', 'string', 'max:100'],
             'channel' => ['nullable', Rule::in(OrderService::CHANNELS)],
             'status' => ['nullable', Rule::enum(OrderStatus::class)],
@@ -29,7 +47,11 @@ class OrderSupervisionController extends Controller
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
         ]);
+    }
 
+    public function index(Request $request): View
+    {
+        $filters = $this->validated($request);
         $query = $this->filtered($filters);
 
         $orders = (clone $query)->with('user')->latest('id')->paginate(25)->withQueryString();

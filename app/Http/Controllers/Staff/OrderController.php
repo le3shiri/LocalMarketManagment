@@ -27,7 +27,7 @@ class OrderController extends Controller
             ->paginate(30)
             ->withQueryString();
 
-        $counts = Order::selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+        $counts = Order::selectRaw('status, count(*) as how_many')->groupBy('status')->pluck('how_many', 'status');
 
         return view('staff.orders.index', compact('orders', 'status', 'counts'));
     }

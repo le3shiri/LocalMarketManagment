@@ -42,6 +42,7 @@ Proyecto de la asignatura *Entornos de Desarrollo* (1.º DAM / DAW). El Product 
 
 | Documento | Contenido |
 |---|---|
+| [Metodología ágil](docs/METODOLOGIA_AGIL.md) | Scrum + Kanban, Definición de Listo y de Hecho, estimación, Sprints, velocidad, retrospectivas y trazabilidad |
 | [Manual de usuario](docs/MANUAL.md) | Tareas por rol y guion de demostración de 10 minutos |
 | [Arquitectura](docs/ARQUITECTURA.md) | Módulos, servicios, flujo de stock, ciclo del pedido, seguridad y decisiones técnicas |
 | [Modelo de datos](docs/MODELO_DE_DATOS.md) | Diagrama entidad-relación generado del esquema real (`php artisan docs:er-diagram --write`) |

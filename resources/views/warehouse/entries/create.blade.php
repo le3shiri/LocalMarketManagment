@@ -1,5 +1,6 @@
 <x-layouts.app title="Entrada de mercancía">
-    <a href="{{ route('warehouse.stock.index') }}" class="text-sm text-stone-500 hover:underline">← Volver al inventario</a>
+    <x-warehouse-tabs />
+
 
     <div class="mt-3 grid gap-6 lg:grid-cols-5">
         <x-card title="Registrar entrada de mercancía" class="lg:col-span-2">

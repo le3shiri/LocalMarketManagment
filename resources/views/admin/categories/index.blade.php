@@ -8,6 +8,7 @@
                     <tr>
                         <th class="px-4 py-3">Orden</th>
                         <th class="px-4 py-3">Nombre</th>
+                        <th class="px-4 py-3">Productos</th>
                         <th class="px-4 py-3 text-right">Acciones</th>
                     </tr>
                 </thead>
@@ -19,6 +20,7 @@
                                 <p class="font-medium text-stone-900">{{ $category->name }}</p>
                                 <p class="text-xs text-stone-500">{{ $category->description }}</p>
                             </td>
+                            <td class="px-4 py-3">{{ $category->products_count }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('admin.categories.edit', $category) }}" class="rounded-md px-2 py-1 text-emerald-700 hover:bg-emerald-50">Editar</a>

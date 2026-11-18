@@ -13,7 +13,7 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
-        return view('admin.categories.index', ['categories' => Category::ordered()->get()]);
+        return view('admin.categories.index', ['categories' => Category::ordered()->withCount('products')->get()]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -37,6 +37,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
+        if ($category->products()->exists()) {
+            return back()->with('error', "No se puede eliminar «{$category->name}»: todavía tiene productos. Muévelos a otra categoría primero.");
+        }
+
         $category->delete();
 
         return back()->with('status', "Categoría «{$category->name}» eliminada.");

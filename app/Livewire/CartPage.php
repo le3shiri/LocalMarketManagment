@@ -14,10 +14,12 @@ class CartPage extends Component
 {
     public function render(CartService $cart): View
     {
-        $items = $cart->items(auth()->user());
+        $user = auth()->user();
+        $items = $cart->items($user);
 
         return view('livewire.cart-page', [
             'items' => $items,
+            'shortages' => $cart->shortages($user),
             'subtotal' => round($items->sum('line_total'), 2),
         ]);
     }

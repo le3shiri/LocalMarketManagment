@@ -79,6 +79,17 @@ class CartService
         return $user->cartItems()->count();
     }
 
+    /**
+     * Check a line that doesn't come from a cart (orders taken by staff).
+     *
+     * @throws CartException
+     */
+    public function validateLine(Product $product, float $quantity): void
+    {
+        $this->assertSellable($product);
+        $this->assertValidQuantity($product, $quantity);
+    }
+
     /** @throws CartException */
     protected function assertSellable(Product $product): void
     {

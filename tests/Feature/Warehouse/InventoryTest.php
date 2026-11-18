@@ -40,7 +40,8 @@ class InventoryTest extends TestCase
         $this->actingAs($this->warehouseUser())
             ->get('/almacen/inventario')
             ->assertOk()
-            ->assertSeeInOrder(['Tomate de ensalada', '20 kg', '14 kg', '6 kg', '1 kg', '5 kg', '3 kg']);
+            ->assertSeeInOrder(['Tomate de ensalada', '20 kg', '14 kg', '6 kg', '1 kg', '5 kg'])
+            ->assertSeeHtml('name="min_alert" inputmode="decimal" value="3"'); // editable minimum (SUP-50)
     }
 
     public function test_low_stock_filter_only_lists_products_below_their_minimum(): void

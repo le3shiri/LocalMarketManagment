@@ -7,8 +7,10 @@
                     <p class="text-sm text-stone-500">Pedido</p>
                     <h1 class="text-2xl font-bold text-stone-900">{{ $order->code }}</h1>
                 </div>
-                <x-order-status :status="$order->status" class="text-sm" />
+                <a href="{{ route('orders.index') }}" class="text-sm text-stone-500 hover:underline">Mis pedidos</a>
             </div>
+
+            <livewire:order-tracker :order="$order" />
 
             <dl class="mb-6 grid gap-3 text-sm sm:grid-cols-2">
                 <div><dt class="text-stone-400">Modalidad</dt><dd class="font-medium">{{ $order->fulfillment->label() }}</dd></div>

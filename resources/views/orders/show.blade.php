@@ -47,7 +47,13 @@
         </x-card>
 
         <div class="mt-4 flex items-center justify-between">
-            <a href="{{ route('catalog.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">Seguir comprando</a>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('catalog.index') }}" class="text-sm font-medium text-emerald-700 hover:underline">Seguir comprando</a>
+                <form method="POST" action="{{ route('orders.repeat', $order) }}">
+                    @csrf
+                    <button class="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">Repetir pedido</button>
+                </form>
+            </div>
             @if ($order->status === \App\Enums\OrderStatus::Pending)
                 <form method="POST" action="{{ route('orders.cancel', $order) }}" onsubmit="return confirm('¿Seguro que quieres cancelar este pedido?')">
                     @csrf

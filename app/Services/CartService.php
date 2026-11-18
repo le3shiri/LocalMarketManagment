@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\CartException;
 use App\Models\CartItem;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -72,6 +73,49 @@ class CartService
     public function clear(User $user): void
     {
         $user->cartItems()->delete();
+    }
+
+    /**
+     * "Repetir pedido": put the products of a previous order back in the cart at today's
+     * price, adjusted to what is available online now.
+     *
+     * @return array{added: list<string>, adjusted: list<string>, skipped: list<string>}
+     */
+    public function addFromOrder(User $user, Order $order): array
+    {
+        $result = ['added' => [], 'adjusted' => [], 'skipped' => []];
+
+        foreach ($order->items()->with('product.stock')->get() as $item) {
+            $product = $item->product;
+
+            if (! $product || ! $product->is_active) {
+                $result['skipped'][] = "{$item->product_name} (ya no está a la venta)";
+
+                continue;
+            }
+
+            $step = $product->unit_type->step();
+            $inCart = (float) ($user->cartItems()->where('product_id', $product->id)->value('quantity') ?? 0);
+            $room = max(0, $product->stock->available_online - $inCart);
+            // Largest multiple of the step that fits (1 ud, 0,25 kg).
+            $quantity = round(min($item->quantity, floor(($room + 0.0005) / $step) * $step), 3);
+
+            if ($quantity <= 0) {
+                $result['skipped'][] = "{$product->name} (agotado)";
+
+                continue;
+            }
+
+            $this->add($user, $product, $quantity);
+
+            if ($quantity + 0.0005 < $item->quantity) {
+                $result['adjusted'][] = "{$product->name}: {$product->formatQuantity($quantity)} de {$product->formatQuantity($item->quantity)}";
+            } else {
+                $result['added'][] = $product->name;
+            }
+        }
+
+        return $result;
     }
 
     public function count(User $user): int

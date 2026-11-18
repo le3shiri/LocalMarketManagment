@@ -16,7 +16,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'channel', 'status', 'fulfillment', 'contact_name', 'contact_phone',
+        'user_id', 'created_by', 'channel', 'status', 'fulfillment', 'contact_name', 'contact_phone',
         'delivery_address', 'slot_date', 'slot', 'subtotal', 'delivery_fee', 'total', 'notes',
     ];
 
@@ -58,6 +58,12 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Employee who took a phone / WhatsApp order. */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function items(): HasMany

@@ -61,6 +61,26 @@ class User extends Authenticatable
         return $this->hasMany(CartItem::class);
     }
 
+    /** Customer account matching a phone number, ignoring spaces and the +34 prefix. */
+    public static function findByPhone(?string $phone): ?self
+    {
+        $digits = static::normalizePhone($phone);
+
+        if (strlen($digits) < 9) {
+            return null;
+        }
+
+        return static::whereNotNull('phone')->get(['id', 'phone', 'name', 'email', 'role_id'])
+            ->first(fn (User $user) => static::normalizePhone($user->phone) === $digits);
+    }
+
+    public static function normalizePhone(?string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone);
+
+        return strlen($digits) > 9 && str_starts_with($digits, '34') ? substr($digits, 2) : $digits;
+    }
+
     public function hasRole(string $role): bool
     {
         return $this->role?->name === $role;

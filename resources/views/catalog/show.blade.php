@@ -13,7 +13,7 @@
         <div class="space-y-4">
             <h1 class="text-3xl font-bold text-stone-900">{{ $product->name }}</h1>
             <p class="text-2xl font-semibold text-emerald-700">{{ $product->formatted_price }}</p>
-            <x-availability :product="$product" class="text-sm" />
+            <x-availability :product="$product" detailed class="text-sm" />
 
             @if ($product->unit_type === \App\Enums\UnitType::Weight)
                 <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -33,7 +33,9 @@
                 @endif
             </dl>
 
-            {{ $actions ?? '' }}
+            <div class="max-w-xs pt-2">
+                <livewire:add-to-cart :product="$product" />
+            </div>
         </div>
     </div>
 </x-layouts.app>

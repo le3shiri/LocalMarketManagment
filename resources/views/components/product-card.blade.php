@@ -1,6 +1,6 @@
 @props(['product'])
 
-<article class="flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition hover:shadow-md">
+<article {{ $attributes->class('flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition hover:shadow-md') }}>
     <a href="{{ route('catalog.show', $product) }}" class="block aspect-square bg-stone-100">
         @if ($product->image_url)
             <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy">
@@ -13,6 +13,7 @@
         <a href="{{ route('catalog.show', $product) }}" class="font-medium text-stone-900 hover:text-emerald-700">{{ $product->name }}</a>
         <p class="font-semibold text-emerald-700">{{ $product->formatted_price }}</p>
         <x-availability :product="$product" class="mt-auto pt-2" />
+        <livewire:add-to-cart :product="$product" :compact="true" :key="'add-to-cart-'.$product->id" />
         {{ $slot }}
     </div>
 </article>

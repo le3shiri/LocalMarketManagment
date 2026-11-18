@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\Availability;
 use App\Enums\UnitType;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
@@ -16,7 +19,9 @@ use Illuminate\Support\Str;
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use HasFactory, Auditable;
+
+    protected string $auditLabel = 'producto';
 
     protected $fillable = [
         'category_id', 'name', 'sku', 'description', 'price', 'unit_type',
@@ -46,6 +51,14 @@ class Product extends Model
                 $product->slug = static::uniqueSlug($product);
             }
         });
+
+        // Every product has exactly one stock row, starting at zero.
+        static::created(fn (Product $product) => $product->stock()->create());
+    }
+
+    public function stock(): HasOne
+    {
+        return $this->hasOne(ProductStock::class)->withDefault();
     }
 
     public function category(): BelongsTo
@@ -72,6 +85,20 @@ class Product extends Model
     protected function formattedPrice(): Attribute
     {
         return Attribute::get(fn () => Number::currency((float) $this->price, 'EUR', 'es').' / '.$this->unit_type->suffix());
+    }
+
+    /** Online availability as the web shop and the assistant see it. */
+    public function availability(): Availability
+    {
+        return Availability::fromQuantity($this->stock->available_online);
+    }
+
+    /** "12 ud" or "1,25 kg" */
+    public function formatQuantity(float $quantity): string
+    {
+        $decimals = $this->unit_type === UnitType::Weight ? 2 : 0;
+
+        return Number::format($quantity, maxPrecision: $decimals, locale: 'es').' '.$this->unit_type->suffix();
     }
 
     private static function uniqueSlug(Product $product): string

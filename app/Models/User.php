@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -12,7 +14,11 @@ use Illuminate\Support\Collection;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Auditable, Notifiable;
+
+    protected string $auditLabel = 'usuario';
+    /** @var list<string> */
+    protected array $auditExcept = ['email_verified_at'];
 
     protected $fillable = [
         'role_id',
@@ -48,6 +54,11 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
     }
 
     public function hasRole(string $role): bool

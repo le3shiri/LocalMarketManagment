@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Enums\Fulfillment;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Order extends Model
 {
@@ -16,7 +18,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'created_by', 'channel', 'source_reference', 'source_message', 'status', 'fulfillment', 'contact_name', 'contact_phone',
+        'user_id', 'created_by', 'channel', 'source_reference', 'source_message', 'status', 'fulfillment', 'payment_method', 'contact_name', 'contact_phone',
         'delivery_address', 'slot_date', 'slot', 'subtotal', 'delivery_fee', 'total', 'notes',
     ];
 
@@ -25,6 +27,7 @@ class Order extends Model
         return [
             'status' => OrderStatus::class,
             'fulfillment' => Fulfillment::class,
+            'payment_method' => PaymentMethod::class,
             'slot_date' => 'date',
             'subtotal' => 'decimal:2',
             'delivery_fee' => 'decimal:2',
@@ -69,6 +72,12 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /** Money received when the order was handed over. */
+    public function payment(): MorphOne
+    {
+        return $this->morphOne(Payment::class, 'payable');
     }
 
     public function statusChanges(): HasMany

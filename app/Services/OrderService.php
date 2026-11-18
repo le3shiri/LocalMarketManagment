@@ -123,6 +123,7 @@ class OrderService
             'source_message' => $data['source_message'] ?? null,
             'status' => OrderStatus::Pending,
             'fulfillment' => $fulfillment,
+            'payment_method' => $data['payment_method'] ?? 'cash',
             'contact_name' => $data['contact_name'],
             'contact_phone' => $data['contact_phone'],
             'delivery_address' => $fulfillment === Fulfillment::Delivery ? $data['delivery_address'] : null,

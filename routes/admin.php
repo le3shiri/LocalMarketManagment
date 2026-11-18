@@ -44,6 +44,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('can:reports.view')->group(function () {
         Route::get('informes', [ReportController::class, 'index'])->name('reports.index');
         Route::get('informes/exportar', [ReportController::class, 'export'])->name('reports.export');
+        Route::get('informes/mas-vendidos', [ReportController::class, 'topProducts'])->name('reports.top');
     });
 
     Route::get('ventas',[SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');

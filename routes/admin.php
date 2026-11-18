@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderSupervisionController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\UserController;
@@ -32,6 +33,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('pedidos', [OrderSupervisionController::class, 'index'])->middleware('can:orders.supervise')->name('orders.index');
 
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
+
+    Route::middleware('can:reports.view')->group(function () {
+        Route::get('informes', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('informes/exportar', [ReportController::class, 'export'])->name('reports.export');
+    });
 
     Route::get('ventas',[SalesReportController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
 

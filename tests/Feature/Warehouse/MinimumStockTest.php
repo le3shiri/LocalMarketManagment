@@ -77,7 +77,7 @@ class MinimumStockTest extends TestCase
         $this->product('Pechuga de pollo', 1, 4);
         $this->product('Leche entera', 7, 8);
 
-        $this->actingAs($this->manager)->get('/almacen/inventario')->assertSeeHtml('data-low-stock>2<');
+        $this->actingAs($this->manager)->get('/almacen/inventario')->assertSeeHtml('data-badge>2<'); // badge now lives in the grouped menu
     }
 
     public function test_cashiers_see_the_list_but_can_not_change_minimums(): void

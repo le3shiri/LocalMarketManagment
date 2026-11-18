@@ -46,7 +46,7 @@ class OrderPaymentMethodTest extends TestCase
             ->call('placeOrder');
 
         $this->assertSame(PaymentMethod::Card, Order::sole()->payment_method);
-        $this->actingAs($this->customer)->get('/pedidos/LM-000001')->assertSee('Tarjeta al recogerlo');
+        $this->actingAs($this->customer)->get('/pedidos/'.Order::sole()->code)->assertSee('Tarjeta al recogerlo');
     }
 
     public function test_unknown_payment_methods_are_rejected(): void

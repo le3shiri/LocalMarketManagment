@@ -78,7 +78,7 @@ class SalesReportTest extends TestCase
         $response = $this->actingAs($this->admin)->get('/admin/ventas');
 
         $this->assertSame(['2026-11-23', '2026-11-22'], $response->viewData('byDay')->pluck('day')->all());
-        $response->assertSee(route('pos.tickets.show', 'T-000001'));
+        $response->assertSee(route('pos.tickets.show', Sale::orderBy('id')->first()->code));
     }
 
     public function test_only_users_with_sales_permission_see_the_report(): void

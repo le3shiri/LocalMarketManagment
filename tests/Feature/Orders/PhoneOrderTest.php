@@ -58,7 +58,7 @@ class PhoneOrderTest extends TestCase
             ->call('addProduct', $this->rice->id)
             ->set('slot', '11:00-12:00')
             ->call('save')
-            ->assertRedirect(route('staff.orders.show', 'LM-000001'));
+            ->assertRedirect(route('staff.orders.show', Order::sole()));
 
         $order = Order::sole();
         $this->assertSame('phone', $order->channel);

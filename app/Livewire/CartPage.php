@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Enums\Fulfillment;
 use App\Exceptions\CartException;
+use App\Support\CartTotals;
 use App\Models\CartItem;
 use App\Services\CartService;
 use Illuminate\Contracts\View\View;
@@ -53,7 +55,8 @@ class CartPage extends Component
         return view('livewire.cart-page', [
             'items' => $items,
             'shortages' => $cart->shortages($user),
-            'subtotal' => round($items->sum('line_total'), 2),
+            'pickup' => CartTotals::for($items, Fulfillment::Pickup),
+            'delivery' => CartTotals::for($items, Fulfillment::Delivery),
         ]);
     }
 

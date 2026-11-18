@@ -1,4 +1,6 @@
 <x-layouts.app title="Inventario">
+    <x-warehouse-tabs />
+
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-stone-900">Inventario</h1>

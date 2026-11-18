@@ -3,6 +3,7 @@
 namespace App\Livewire\Staff;
 
 use App\Enums\Fulfillment;
+use App\Enums\PaymentMethod;
 use App\Exceptions\CartException;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -33,6 +34,9 @@ class CreateOrder extends Component
     public string $contact_name = '';
 
     public string $fulfillment = 'pickup';
+
+    /** Pay on pickup / delivery: cash or card (online payment is phase 3). */
+    public string $payment_method = 'cash';
 
     public string $delivery_address = '';
 
@@ -142,6 +146,7 @@ class CreateOrder extends Component
             'contact_phone' => ['required', 'string', 'regex:/^[0-9+\s]{9,20}$/'],
             'contact_name' => ['required', 'string', 'max:255'],
             'fulfillment' => ['required', Rule::enum(Fulfillment::class)],
+            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'delivery_address' => [Rule::requiredIf($this->fulfillment === Fulfillment::Delivery->value), 'nullable', 'string', 'max:255'],
             'slot_date' => ['required', Rule::in(app(Slots::class)->days()->map->toDateString()->all())],
             'slot' => ['required', Rule::in(config('shop.slots'))],
@@ -155,7 +160,7 @@ class CreateOrder extends Component
     {
         return [
             'contact_phone' => 'teléfono', 'contact_name' => 'nombre', 'delivery_address' => 'dirección de entrega',
-            'slot_date' => 'día', 'slot' => 'franja horaria', 'notes' => 'observaciones',
+            'slot_date' => 'día', 'slot' => 'franja horaria', 'payment_method' => 'método de pago', 'notes' => 'observaciones',
             'source_reference' => 'referencia de la conversación', 'source_message' => 'mensaje original',
         ];
     }

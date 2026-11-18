@@ -11,6 +11,7 @@
 
                 <x-input name="name" label="Nombre" :value="$product->name" required />
                 <x-input name="sku" label="SKU (código interno)" :value="$product->sku" required />
+                <x-input name="barcode" label="Código de barras (EAN-13, opcional)" inputmode="numeric" maxlength="13" :value="$product->barcode" />
 
                 <div class="space-y-1">
                     <label for="category_id" class="block text-sm font-medium text-stone-700">Categoría</label>
@@ -33,7 +34,17 @@
                     @error('unit_type') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <x-input name="price" label="Precio (€)" inputmode="decimal" :value="$product->price" required />
+                <x-input name="price" label="Precio con IVA (€)" inputmode="decimal" :value="$product->price" required />
+
+                <div class="space-y-1">
+                    <label for="vat_rate" class="block text-sm font-medium text-stone-700">IVA incluido</label>
+                    <select id="vat_rate" name="vat_rate" class="block w-full rounded-lg border border-stone-300 px-3 py-2 text-sm">
+                        @foreach ([4 => 'Superreducido 4 % (pan, leche, huevos, fruta, verdura)', 10 => 'Reducido 10 % (resto de alimentación)', 21 => 'General 21 %'] as $rate => $text)
+                            <option value="{{ $rate }}" @selected((int) old('vat_rate', $product->vat_rate ?? 10) === $rate)>{{ $text }}</option>
+                        @endforeach
+                    </select>
+                    @error('vat_rate') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
                 <x-input name="location" label="Ubicación (pasillo, estante, cámara)" :value="$product->location" />
 
                 <div class="space-y-1 sm:col-span-2">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Exceptions\OrderTransitionException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -33,7 +34,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        return view('staff.orders.show', ['order' => $order->load(['items', 'user', 'creator', 'statusChanges.user'])]);
+        return view('staff.orders.show', ['order' => $order->load(['items', 'user', 'creator', 'payment', 'statusChanges.user'])]);
     }
 
     public function advance(Request $request, Order $order, OrderWorkflow $workflow): RedirectResponse
@@ -43,7 +44,8 @@ class OrderController extends Controller
             'note' => ['nullable', 'string', 'max:255'],
             'weights' => ['array'],
             'weights.*' => ['nullable', 'numeric', 'gt:0', 'max:9999'],
-        ], [], ['weights.*' => 'peso real']);
+            'payment_method' => ['nullable', Rule::enum(PaymentMethod::class)],
+        ], [], ['weights.*' => 'peso real', 'payment_method' => 'método de pago']);
 
         // Only weighted lines of this order may get a real weight.
         $weights = collect($data['weights'] ?? [])
@@ -53,7 +55,10 @@ class OrderController extends Controller
             ->all();
 
         try {
-            $order = $workflow->advance($order, OrderStatus::from($data['status']), $request->user(), $data['note'] ?? null, $weights);
+            $order = $workflow->advance(
+                $order, OrderStatus::from($data['status']), $request->user(), $data['note'] ?? null, $weights,
+                PaymentMethod::tryFrom((string) ($data['payment_method'] ?? '')),
+            );
         } catch (OrderTransitionException $e) {
             return back()->with('error', $e->getMessage());
         }

@@ -8,6 +8,8 @@ enum MovementType: string
     case Reserve = 'reserve';
     case Release = 'release';
     case Delivery = 'delivery';
+    case Sale = 'sale';
+    case Return = 'return';
 
     public function label(): string
     {
@@ -16,6 +18,8 @@ enum MovementType: string
             self::Reserve => 'Reserva de pedido',
             self::Release => 'Liberación de reserva',
             self::Delivery => 'Entrega de pedido',
+            self::Sale => 'Venta en tienda',
+            self::Return => 'Devolución de cliente',
         };
     }
 }

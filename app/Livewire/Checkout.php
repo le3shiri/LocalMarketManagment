@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Enums\Fulfillment;
+use App\Enums\PaymentMethod;
 use App\Exceptions\CartException;
 use App\Services\CartService;
 use App\Services\OrderService;
@@ -23,6 +24,9 @@ use Livewire\Component;
 class Checkout extends Component
 {
     public string $fulfillment = 'pickup';
+
+    /** Pay on pickup / delivery: cash or card (online payment is phase 3). */
+    public string $payment_method = 'cash';
 
     public string $contact_name = '';
 
@@ -63,6 +67,7 @@ class Checkout extends Component
 
         return [
             'fulfillment' => ['required', Rule::enum(Fulfillment::class)],
+            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'contact_name' => ['required', 'string', 'max:255'],
             'contact_phone' => ['required', 'string', 'regex:/^[0-9+\s]{9,20}$/'],
             'delivery_address' => [Rule::requiredIf($this->fulfillment === Fulfillment::Delivery->value), 'nullable', 'string', 'max:255'],
@@ -76,7 +81,7 @@ class Checkout extends Component
     {
         return [
             'contact_name' => 'nombre', 'contact_phone' => 'teléfono', 'delivery_address' => 'dirección de entrega',
-            'slot_date' => 'día', 'slot' => 'franja horaria', 'notes' => 'observaciones',
+            'slot_date' => 'día', 'slot' => 'franja horaria', 'payment_method' => 'método de pago', 'notes' => 'observaciones',
         ];
     }
 

@@ -71,7 +71,25 @@
                 @error('slot') <p class="mt-2 text-xs text-red-600">{{ $message }}</p> @enderror
             </x-card>
 
-            <x-card title="3. Datos de contacto">
+            <x-card title="3. ¿Cómo vas a pagar?">
+                <div class="grid gap-3 sm:grid-cols-2">
+                    @foreach (\App\Enums\PaymentMethod::cases() as $method)
+                        <label @class([
+                            'cursor-pointer rounded-xl border-2 p-3 transition',
+                            'border-emerald-600 bg-emerald-50' => $payment_method === $method->value,
+                            'border-stone-200 hover:border-stone-300' => $payment_method !== $method->value,
+                        ])>
+                            <input type="radio" wire:model.live="payment_method" value="{{ $method->value }}" class="sr-only">
+                            <span class="block font-medium text-stone-900">{{ $method->label() }}</span>
+                            <span class="text-sm text-stone-500">{{ $fulfillment === 'delivery' ? 'Al recibir el pedido' : 'Al recoger en la tienda' }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                <p class="mt-2 text-xs text-stone-500">Pronto podrás pagar online. Por ahora se paga en la entrega, con el importe final de los productos por peso.</p>
+                @error('payment_method') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </x-card>
+
+            <x-card title="4. Datos de contacto">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="space-y-1">
                         <label for="contact_name" class="block text-sm font-medium text-stone-700">Nombre</label>

@@ -21,6 +21,8 @@ class AuditLog extends Model
         'permissions' => 'Cambio de permisos',
         'stock' => 'Movimiento de stock',
         'order' => 'Pedido',
+        'sale' => 'Venta en caja',
+        'refund' => 'Devolución',
     ];
 
     protected $fillable = ['user_id', 'action', 'subject_type', 'subject_id', 'description', 'changes', 'ip_address'];

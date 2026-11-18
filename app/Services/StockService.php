@@ -126,6 +126,38 @@ class StockService
     }
 
     /**
+     * Counter sale: units leave the store stock and the shop. The online channel is never
+     * touched, so a sale at the till can't take units promised to web/WhatsApp orders.
+     *
+     * @param  array<int, float>  $lines  product_id => quantity
+     *
+     * @throws InvalidArgumentException when the store stock doesn't cover a line
+     */
+    public function sellAtCounter(array $lines, ?User $user, string $reference): void
+    {
+        DB::transaction(function () use ($lines, $user, $reference) {
+            $stocks = $this->lockMany(array_keys($lines));
+
+            foreach ($lines as $productId => $quantity) {
+                $stock = $stocks->get($productId);
+
+                if (! $stock || $stock->store_qty + 0.0005 < $quantity) {
+                    $product = $stock?->product;
+                    throw new InvalidArgumentException($product
+                        ? "Según el sistema solo hay {$product->formatQuantity($stock->store_qty)} de «{$product->name}» en tienda. Revisa el recuento o haz una transferencia desde almacén."
+                        : 'Producto sin stock registrado.');
+                }
+
+                $stock->store_qty = round($stock->store_qty - $quantity, 3);
+                $stock->on_hand = max(0, round($stock->on_hand - $quantity, 3));
+                $stock->save();
+
+                $this->log($stock, MovementType::Sale, $user, store: -$quantity, reference: $reference);
+            }
+        });
+    }
+
+    /**
      * Give reserved units back to the online stock (cancelled order or expired cart).
      *
      * @param  array<int, float>  $lines  product_id => reserved quantity

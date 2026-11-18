@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Warehouse\ChannelController;
 use App\Http\Controllers\Warehouse\ReplenishmentController;
 use App\Http\Controllers\Warehouse\StockController;
 use App\Http\Controllers\Warehouse\StockCountController;
@@ -30,5 +31,15 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
     Route::middleware('can:stock.adjust')->group(function () {
         Route::get('recuentos/nuevo', [StockCountController::class, 'create'])->name('counts.create');
         Route::post('recuentos', [StockCountController::class, 'store'])->name('counts.store');
+    });
+
+    Route::middleware('can:stock.transfer')->group(function () {
+        Route::get('canales', [ChannelController::class, 'create'])->name('transfers.create');
+        Route::post('canales/transferencias', [ChannelController::class, 'transfer'])->name('transfers.store');
+    });
+
+    Route::middleware('can:stock.channels')->group(function () {
+        Route::put('canales/reparto', [ChannelController::class, 'updateShares'])->name('channels.shares');
+        Route::post('canales/reparto/aplicar', [ChannelController::class, 'rebalance'])->name('channels.rebalance');
     });
 });

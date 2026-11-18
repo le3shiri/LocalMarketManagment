@@ -9,6 +9,19 @@
         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ $error }}</div>
     @endif
 
+    @if ($duplicates)
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert">
+            <p>
+                Posible pedido duplicado: este teléfono ya tiene
+                @foreach ($duplicates as $code)
+                    <a href="{{ route('staff.orders.show', $code) }}" class="font-mono font-medium underline" target="_blank">{{ $code }}</a>@if (! $loop->last), @endif
+                @endforeach
+                en la misma franja.
+            </p>
+            <button type="button" wire:click="saveAnyway" class="rounded-lg bg-amber-600 px-3 py-1.5 font-medium text-white hover:bg-amber-700">Es otro pedido, registrar igualmente</button>
+        </div>
+    @endif
+
     <form wire:submit="save" class="grid gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
             <x-card title="Cliente">

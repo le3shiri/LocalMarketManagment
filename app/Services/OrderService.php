@@ -78,6 +78,24 @@ class OrderService
     }
 
     /**
+     * Open orders from the same phone for the same day and slot: probably the same
+     * request received twice (e.g. a WhatsApp message and a call).
+     *
+     * @return Collection<int, Order>
+     */
+    public function possibleDuplicates(string $phone, string $slotDate, string $slot): Collection
+    {
+        $digits = User::normalizePhone($phone);
+
+        return Order::whereDate('slot_date', $slotDate)
+            ->where('slot', $slot)
+            ->whereNotIn('status', [OrderStatus::Cancelled, OrderStatus::Delivered])
+            ->get()
+            ->filter(fn (Order $order) => User::normalizePhone($order->contact_phone) === $digits)
+            ->values();
+    }
+
+    /**
      * @param  Collection<int, CartItem>  $items
      *
      * @throws CartException
@@ -101,6 +119,8 @@ class OrderService
             'user_id' => $customer?->id,
             'created_by' => $actor->is($customer) ? null : $actor->id,
             'channel' => $channel,
+            'source_reference' => $data['source_reference'] ?? null,
+            'source_message' => $data['source_message'] ?? null,
             'status' => OrderStatus::Pending,
             'fulfillment' => $fulfillment,
             'contact_name' => $data['contact_name'],

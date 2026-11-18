@@ -158,6 +158,24 @@ class StockService
     }
 
     /**
+     * Returned goods that can be sold again go back to the store shelf.
+     *
+     * @param  array<int, float>  $lines  product_id => quantity
+     */
+    public function restockReturn(array $lines, ?User $user, string $reference, ?string $reason = null): void
+    {
+        DB::transaction(function () use ($lines, $user, $reference, $reason) {
+            foreach ($this->lockMany(array_keys($lines)) as $productId => $stock) {
+                $stock->store_qty = round($stock->store_qty + $lines[$productId], 3);
+                $stock->on_hand = round($stock->on_hand + $lines[$productId], 3);
+                $stock->save();
+
+                $this->log($stock, MovementType::Return, $user, store: $lines[$productId], reference: $reference, reason: $reason);
+            }
+        });
+    }
+
+    /**
      * Give reserved units back to the online stock (cancelled order or expired cart).
      *
      * @param  array<int, float>  $lines  product_id => reserved quantity

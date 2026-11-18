@@ -21,6 +21,9 @@
         @endif
         <div class="flex gap-2">
             <button type="button" onclick="window.print()" class="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50">Imprimir ticket</button>
+            @can('refunds.manage')
+                <a href="{{ route('pos.refunds.create', $sale) }}" class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50">Devolución</a>
+            @endcan
             @can('pos.use')
                 <a href="{{ route('pos.terminal') }}" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Nueva venta</a>
             @endcan
@@ -80,4 +83,22 @@
 
         <p class="mt-4 text-center">¡Gracias por su compra!</p>
     </article>
+
+    @if ($sale->refunds->isNotEmpty())
+        <div class="no-print mx-auto mt-4 max-w-sm rounded-xl border border-red-200 bg-red-50 p-4 text-sm">
+            <p class="mb-2 font-medium text-red-800">Devoluciones de este ticket</p>
+            <ul class="space-y-1">
+                @foreach ($sale->refunds as $refund)
+                    <li class="flex justify-between">
+                        @can('refunds.manage')
+                            <a href="{{ route('pos.refunds.show', $refund) }}" class="font-mono text-red-700 underline">{{ $refund->code }}</a>
+                        @else
+                            <span class="font-mono">{{ $refund->code }}</span>
+                        @endcan
+                        <span>-{{ Number::currency((float) $refund->amount, 'EUR', 'es') }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 </x-layouts.app>

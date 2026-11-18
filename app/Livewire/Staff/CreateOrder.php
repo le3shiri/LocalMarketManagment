@@ -55,10 +55,20 @@ class CreateOrder extends Component
         $this->slot_date = $slots->days()->first()?->toDateString() ?? '';
     }
 
+    /** WhatsApp only: conversation reference and the customer's original message. */
+    public string $source_reference = '';
+
+    public string $source_message = '';
+
+    /** Codes of open orders that look like the same request; staff must confirm to continue. */
+    public array $duplicates = [];
+
+    public bool $confirmDuplicate = false;
+
     /** Channels this form can register. */
     protected function channels(): array
     {
-        return ['phone'];
+        return ['phone', 'whatsapp'];
     }
 
     /** Fill in the customer's details as soon as a known phone number is typed. */
@@ -73,6 +83,13 @@ class CreateOrder extends Component
     public function updatedSlotDate(): void
     {
         $this->slot = '';
+    }
+
+    public function saveAnyway(OrderService $orders)
+    {
+        $this->confirmDuplicate = true;
+
+        return $this->save($orders);
     }
 
     #[Computed]
@@ -129,6 +146,8 @@ class CreateOrder extends Component
             'slot_date' => ['required', Rule::in(app(Slots::class)->days()->map->toDateString()->all())],
             'slot' => ['required', Rule::in(config('shop.slots'))],
             'notes' => ['nullable', 'string', 'max:500'],
+            'source_reference' => ['nullable', 'string', 'max:100'],
+            'source_message' => [Rule::requiredIf($this->channel === 'whatsapp'), 'nullable', 'string', 'max:2000'],
         ];
     }
 
@@ -137,12 +156,26 @@ class CreateOrder extends Component
         return [
             'contact_phone' => 'teléfono', 'contact_name' => 'nombre', 'delivery_address' => 'dirección de entrega',
             'slot_date' => 'día', 'slot' => 'franja horaria', 'notes' => 'observaciones',
+            'source_reference' => 'referencia de la conversación', 'source_message' => 'mensaje original',
         ];
     }
 
     public function save(OrderService $orders)
     {
         $data = $this->validate();
+
+        if ($this->channel !== 'whatsapp') {
+            unset($data['source_reference'], $data['source_message']);
+        }
+
+        if (! $this->confirmDuplicate) {
+            $this->duplicates = $orders->possibleDuplicates($data['contact_phone'], $data['slot_date'], $data['slot'])
+                ->pluck('code')->all();
+
+            if ($this->duplicates !== []) {
+                return null; // the view asks the employee to confirm
+            }
+        }
 
         try {
             $order = $orders->placeForStaff($this->channel, $this->lines, $data, auth()->user());

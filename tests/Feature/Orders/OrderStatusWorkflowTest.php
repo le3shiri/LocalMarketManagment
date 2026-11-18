@@ -38,6 +38,15 @@ class OrderStatusWorkflowTest extends TestCase
             ->assertDontSee('Ya entregado');
     }
 
+    public function test_status_counters_show_whole_numbers(): void
+    {
+        Order::factory()->count(2)->create();
+
+        // Regression: a "total" alias collided with Order's decimal cast and showed "2.00".
+        $this->actingAs($this->cashier)->get('/gestion/pedidos')
+            ->assertSee('Pendiente <span class="opacity-70">2</span>', false);
+    }
+
     public function test_an_order_goes_through_the_full_life_cycle(): void
     {
         $order = Order::factory()->create();

@@ -39,3 +39,13 @@ jobs:
 
       - name: Run test suite
         run: php artisan test
+
+      - name: Check migrations are reversible
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ${{ runner.temp }}/rollback.sqlite
+        run: |
+          touch "$DB_DATABASE"
+          php artisan migrate --force
+          php artisan migrate:rollback --step=1000 --force
+          php artisan migrate --force

@@ -22,6 +22,9 @@
                 @endif
 
                 @auth
+                    @if (Route::has('admin.dashboard') && auth()->user()->can('dashboard.view'))
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard', 'admin.reports.*')">Panel</x-nav-link>
+                    @endif
                     @if (Route::has('cart.index') && auth()->user()->can('cart.use'))
                         <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.*', 'checkout.*')">
                             Carrito
@@ -66,6 +69,9 @@
                     @endif
                     @if (Route::has('admin.roles.index') && auth()->user()->can('roles.manage'))
                         <x-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')">Roles</x-nav-link>
+                    @endif
+                    @if (Route::has('admin.backups.index') && auth()->user()->can('backups.manage'))
+                        <x-nav-link :href="route('admin.backups.index')" :active="request()->routeIs('admin.backups.*')">Copias</x-nav-link>
                     @endif
                     @if (Route::has('admin.audit.index') && auth()->user()->can('audit.view'))
                         <x-nav-link :href="route('admin.audit.index')" :active="request()->routeIs('admin.audit.*')">Historial</x-nav-link>

@@ -58,11 +58,11 @@ enum OrderStatus: string
     public function badge(): string
     {
         return match ($this) {
-            self::Pending => 'bg-amber-100 text-amber-800',
-            self::Preparing => 'bg-sky-100 text-sky-800',
-            self::Ready => 'bg-emerald-100 text-emerald-800',
-            self::Delivered => 'bg-stone-200 text-stone-700',
-            self::Cancelled => 'bg-red-100 text-red-700',
+            self::Pending => 'bg-warn-soft text-stock-low',
+            self::Preparing => 'bg-action-soft text-action',
+            self::Ready => 'bg-success-soft text-success-ink',
+            self::Delivered => 'bg-sunken text-ink-soft',
+            self::Cancelled => 'bg-red-50 text-red-800',
         };
     }
 }

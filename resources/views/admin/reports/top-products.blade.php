@@ -4,13 +4,13 @@
 
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-            <a href="{{ route('admin.reports.index') }}" class="no-print text-sm text-ink-muted hover:underline">← Informe de ventas</a>
+            <a href="{{ route('admin.reports.index') }}" class="no-print inline-flex min-h-11 items-center text-[15px] font-bold text-action hover:underline">← Informe de ventas</a>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Productos más vendidos</h1>
-            <p class="text-sm text-ink-muted">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }} · {{ $channels[$filters['channel']] }} · tendencia frente al periodo anterior de la misma duración</p>
+            <p class="mt-1 text-[15px] text-ink-muted">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }} · {{ $channels[$filters['channel']] }} · tendencia frente al periodo anterior de la misma duración</p>
         </div>
         <div class="flex gap-2">
         <x-csv-link :href="route('admin.reports.top.export', request()->query())" />
-        <button type="button" onclick="window.print()" class="no-print rounded-control border border-line-strong bg-white px-4 py-2 text-sm font-medium hover:bg-page">Imprimir</button>
+        <button type="button" onclick="window.print()" class="no-print rounded-control border border-line-strong bg-card px-4 py-2 text-sm font-medium hover:bg-page">Imprimir</button>
         </div>
     </div>
 
@@ -41,16 +41,16 @@
     </form>
 
     @php($maxRevenue = max(0.01, (float) $rows->max('revenue')))
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">#</th>
-                    <th class="px-4 py-3">Producto</th>
-                    <th class="px-4 py-3 text-right">Vendido</th>
-                    <th class="px-4 py-3 text-right">Importe</th>
+                    <th scope="col" class="px-4 py-3">#</th>
+                    <th scope="col" class="px-4 py-3">Producto</th>
+                    <th scope="col" class="px-4 py-3 text-right">Vendido</th>
+                    <th scope="col" class="px-4 py-3 text-right">Importe</th>
                     <th class="w-1/4 px-4 py-3"></th>
-                    <th class="px-4 py-3 text-right">Tendencia</th>
+                    <th scope="col" class="px-4 py-3 text-right">Tendencia</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">
@@ -70,9 +70,9 @@
                         </td>
                         <td class="whitespace-nowrap px-4 py-3 text-right text-xs" data-trend="{{ $row['trend'] ?? 'new' }}">
                             @if (is_null($row['trend']))
-                                <span class="rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-700">Nuevo</span>
+                                <span class="rounded-full bg-action-soft px-2 py-0.5 font-bold text-action">Nuevo</span>
                             @else
-                                <span @class(['font-semibold', 'text-action' => $row['trend'] >= 0, 'text-red-600' => $row['trend'] < 0])>
+                                <span @class(['font-bold', 'text-success-ink' => $row['trend'] >= 0, 'text-red-700' => $row['trend'] < 0])>
                                     {{ $row['trend'] >= 0 ? '▲' : '▼' }} {{ Number::format(abs($row['trend']), maxPrecision: 1, locale: 'es') }} %
                                 </span>
                             @endif

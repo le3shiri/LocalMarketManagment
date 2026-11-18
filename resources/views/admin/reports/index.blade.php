@@ -5,7 +5,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Informe de ventas</h1>
-            <p class="text-sm text-ink-muted">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }} · por {{ mb_strtolower($groups[$group]) }}</p>
+            <p class="mt-1 text-[15px] text-ink-muted">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }} · por {{ mb_strtolower($groups[$group]) }}</p>
         </div>
         <div class="no-print flex flex-wrap items-end gap-2">
             <form method="GET" class="flex flex-wrap items-end gap-2">
@@ -18,18 +18,18 @@
                 </select>
                 <x-button variant="secondary">Ver</x-button>
             </form>
-            <a href="{{ route('admin.reports.top', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="rounded-control border border-line-strong bg-white px-4 py-2 text-sm font-medium hover:bg-page">Más vendidos</a>
-            <a href="{{ route('admin.reports.export', request()->query()) }}" class="rounded-control border border-line-strong bg-white px-4 py-2 text-sm font-medium hover:bg-page">CSV</a>
+            <a href="{{ route('admin.reports.top', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="rounded-control border border-line-strong bg-card px-4 py-2 text-sm font-medium hover:bg-page">Más vendidos</a>
+            <a href="{{ route('admin.reports.export', request()->query()) }}" class="rounded-control border border-line-strong bg-card px-4 py-2 text-sm font-medium hover:bg-page">CSV</a>
             <button type="button" onclick="window.print()" class="inline-flex min-h-11 items-center justify-center rounded-control bg-action px-5 text-[15px] font-bold text-on-action hover:bg-action-hover">Imprimir</button>
         </div>
     </div>
-    @error('to') <p class="no-print mb-3 text-xs text-red-600">{{ $message }}</p> @enderror
+    @error('to') <p class="no-print mb-3 text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
 
     <div class="mb-6 grid gap-4 sm:grid-cols-4">
         @foreach (['till' => 'Ventas en caja', 'orders' => 'Pedidos cobrados', 'refunds' => 'Devoluciones', 'net' => 'Neto'] as $key => $label)
-            <div class="rounded-card border border-line bg-white p-4">
-                <p class="text-xs uppercase tracking-wide text-ink-muted">{{ $label }}</p>
-                <p @class(['mt-1 text-2xl font-bold', 'text-red-700' => $key === 'refunds', 'text-action' => $key === 'net']) data-total="{{ $key }}">
+            <div class="rounded-card bg-card p-5 shadow-card">
+                <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">{{ $label }}</p>
+                <p @class(['mt-1 text-2xl font-extrabold tracking-tight', 'text-red-700' => $key === 'refunds', 'text-ink' => $key === 'net']) data-total="{{ $key }}">
                     {{ $key === 'refunds' && $totals[$key] > 0 ? '−' : '' }}{{ Number::currency($totals[$key], 'EUR', 'es') }}
                 </p>
             </div>
@@ -37,16 +37,16 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
-        <div class="overflow-x-auto rounded-card border border-line bg-white lg:col-span-2">
+        <div class="overflow-x-auto rounded-card bg-card shadow-card lg:col-span-2">
             <table class="min-w-full divide-y divide-line text-sm">
                 <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                     <tr>
-                        <th class="px-4 py-3">{{ $groups[$group] }}</th>
-                        <th class="px-4 py-3 text-right">Tickets</th>
-                        <th class="px-4 py-3 text-right">Caja</th>
-                        <th class="px-4 py-3 text-right">Pedidos</th>
-                        <th class="px-4 py-3 text-right">Devol.</th>
-                        <th class="px-4 py-3 text-right">Neto</th>
+                        <th scope="col" class="px-4 py-3">{{ $groups[$group] }}</th>
+                        <th scope="col" class="px-4 py-3 text-right">Tickets</th>
+                        <th scope="col" class="px-4 py-3 text-right">Caja</th>
+                        <th scope="col" class="px-4 py-3 text-right">Pedidos</th>
+                        <th scope="col" class="px-4 py-3 text-right">Devol.</th>
+                        <th scope="col" class="px-4 py-3 text-right">Neto</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">

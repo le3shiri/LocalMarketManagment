@@ -1,7 +1,7 @@
 <x-layouts.app title="Roles y permisos">
     <div class="mb-6">
         <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Roles y permisos</h1>
-        <p class="text-sm text-ink-muted">Cada rol solo puede hacer lo que necesita para su trabajo (principio de mínimo privilegio).</p>
+        <p class="mt-1 text-[15px] text-ink-muted">Cada rol solo puede hacer lo que necesita para su trabajo (principio de mínimo privilegio).</p>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">

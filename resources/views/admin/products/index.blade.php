@@ -2,7 +2,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Productos</h1>
-            <p class="text-sm text-ink-muted">{{ $products->total() }} productos en el catálogo</p>
+            <p class="mt-1 text-[15px] text-ink-muted">{{ $products->total() }} productos en el catálogo</p>
         </div>
         <a href="{{ route('admin.products.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-control bg-action px-5 text-[15px] font-bold text-on-action hover:bg-action-hover">Nuevo producto</a>
     </div>
@@ -19,16 +19,16 @@
         <x-button variant="secondary">Filtrar</x-button>
     </form>
 
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">Producto</th>
-                    <th class="px-4 py-3">SKU</th>
-                    <th class="px-4 py-3">Categoría</th>
-                    <th class="px-4 py-3">Precio</th>
-                    <th class="px-4 py-3">Venta</th>
-                    <th class="px-4 py-3 text-right">Acciones</th>
+                    <th scope="col" class="px-4 py-3">Producto</th>
+                    <th scope="col" class="px-4 py-3">SKU</th>
+                    <th scope="col" class="px-4 py-3">Categoría</th>
+                    <th scope="col" class="px-4 py-3">Precio</th>
+                    <th scope="col" class="px-4 py-3">Venta</th>
+                    <th scope="col" class="px-4 py-3 text-right">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">
@@ -39,7 +39,8 @@
                                 @if ($product->image_url)
                                     <img src="{{ $product->image_url }}" alt="" class="h-10 w-10 rounded-control object-cover">
                                 @else
-                                    <div class="grid h-10 w-10 place-items-center rounded-control bg-sunken text-xs text-ink-muted">—</div>
+                                    @php($c = \App\Support\SectionColors::for($product->category?->slug))
+                                    <div class="grid h-10 w-10 place-items-center rounded-control text-lg font-light {{ $c['tint'] }} {{ $c['ink'] }}" aria-hidden="true">{{ mb_substr($product->name, 0, 1) }}</div>
                                 @endif
                                 <div>
                                     <p class="font-medium text-ink">{{ $product->name }}</p>
@@ -59,7 +60,7 @@
                                     @method('PATCH')
                                     <button @class([
                                         'rounded-full px-2 py-0.5 text-xs font-medium',
-                                        'bg-action-soft text-action hover:bg-action-soft-hover' => $product->is_active,
+                                        'bg-success-soft text-success-ink hover:brightness-95' => $product->is_active,
                                         'bg-sunken text-ink-muted hover:bg-line' => ! $product->is_active,
                                     ]) title="Cambiar estado de venta">{{ $product->is_active ? 'A la venta' : 'Retirado' }}</button>
                                 </form>
@@ -69,7 +70,7 @@
                         </td>
                         <td class="px-4 py-3 text-right">
                             @if (Route::has('admin.products.edit'))
-                                <a href="{{ route('admin.products.edit', $product) }}" class="rounded-control px-2 py-1 text-action hover:bg-action-soft">Editar</a>
+                                <a href="{{ route('admin.products.edit', $product) }}" class="inline-flex min-h-11 items-center rounded-control px-3 font-bold text-action hover:bg-action-soft">Editar</a>
                             @endif
                         </td>
                     </tr>

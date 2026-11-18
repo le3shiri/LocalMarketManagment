@@ -6,7 +6,7 @@
             <form method="POST" action="{{ route('warehouse.exits.store') }}" class="space-y-4">
                 @csrf
                 <div class="space-y-1">
-                    <label for="product_id" class="block text-sm font-medium text-ink-soft">Producto</label>
+                    <label for="product_id" class="block text-sm font-semibold text-ink-soft">Producto</label>
                     <select id="product_id" name="product_id" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         <option value="">Elige un producto…</option>
                         @foreach ($products as $product)
@@ -15,25 +15,25 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('product_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('product_id') <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                 </div>
 
                 <fieldset class="flex gap-4 text-sm">
                     <legend class="mb-1 block text-sm font-medium text-ink-soft">Sale de</legend>
-                    <label class="flex items-center gap-1"><input type="radio" name="channel" value="store" @checked(old('channel', 'store') === 'store') class="accent-action"> Tienda</label>
-                    <label class="flex items-center gap-1"><input type="radio" name="channel" value="online" @checked(old('channel') === 'online') class="accent-action"> Stock online (sin reservar)</label>
+                    <label class="inline-flex min-h-11 cursor-pointer items-center gap-2 pr-3 font-semibold"><input type="radio" name="channel" value="store" @checked(old('channel', 'store') === 'store') class="accent-action"> Tienda</label>
+                    <label class="inline-flex min-h-11 cursor-pointer items-center gap-2 pr-3 font-semibold"><input type="radio" name="channel" value="online" @checked(old('channel') === 'online') class="accent-action"> Stock online (sin reservar)</label>
                 </fieldset>
 
                 <x-input name="quantity" label="Cantidad" inputmode="decimal" required />
 
                 <div class="space-y-1">
-                    <label for="reason" class="block text-sm font-medium text-ink-soft">Motivo</label>
+                    <label for="reason" class="block text-sm font-semibold text-ink-soft">Motivo</label>
                     <select id="reason" name="reason" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         @foreach ($reasons as $reason)
                             <option value="{{ $reason->value }}" @selected(old('reason') === $reason->value)>{{ $reason->label() }}</option>
                         @endforeach
                     </select>
-                    @error('reason') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('reason') <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                 </div>
                 <x-input name="notes" label="Detalle (obligatorio si el motivo es «Otro»)" />
                 <x-input name="reference" label="Referencia (albarán de devolución, etc.)" />
@@ -50,7 +50,7 @@
                             <p class="font-medium">{{ $movement->product->name }}</p>
                             <p class="text-xs text-ink-muted">{{ $movement->reason }} · {{ $movement->user?->name }} · {{ $movement->created_at->diffForHumans() }}</p>
                         </div>
-                        <p class="whitespace-nowrap text-red-600">{{ $movement->product->formatQuantity($movement->store_delta + $movement->online_delta) }}</p>
+                        <p class="whitespace-nowrap text-red-700">{{ $movement->product->formatQuantity($movement->store_delta + $movement->online_delta) }}</p>
                     </li>
                 @empty
                     <li class="py-6 text-center text-ink-muted">Todavía no hay salidas.</li>

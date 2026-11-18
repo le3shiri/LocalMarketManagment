@@ -1,6 +1,6 @@
 @use('Illuminate\Support\Number')
 <x-layouts.app :title="'Pedido '.$order->code">
-    <a href="{{ route('staff.orders.index') }}" class="text-sm text-ink-muted hover:underline">← Volver a pedidos</a>
+    <a href="{{ route('staff.orders.index') }}" class="inline-flex min-h-11 items-center text-[15px] font-bold text-action hover:underline">← Volver a pedidos</a>
 
     <div class="mt-3 grid gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
@@ -20,7 +20,7 @@
                     <div>
                         <dt class="text-ink-muted">Pago</dt>
                         @if ($order->payment)
-                            <dd class="font-medium text-action">Cobrado · {{ $order->payment->method->label() }} · {{ Number::currency((float) $order->payment->amount, 'EUR', 'es') }}</dd>
+                            <dd class="font-bold text-success-ink">Cobrado · {{ $order->payment->method->label() }} · {{ Number::currency((float) $order->payment->amount, 'EUR', 'es') }}</dd>
                         @else
                             <dd class="font-medium">{{ $order->payment_method->label() }} en la entrega</dd>
                         @endif
@@ -30,7 +30,7 @@
                     <p class="mb-2 text-xs text-ink-muted">Registrado por {{ $order->creator->name }}</p>
                 @endif
                 @if ($order->source_message)
-                    <figure class="mb-4 rounded-control border-l-4 border-action bg-action-soft px-3 py-2 text-sm">
+                    <figure class="mb-4 rounded-control border border-line bg-page px-4 py-3 text-sm">
                         <blockquote class="whitespace-pre-line text-ink-soft">{{ $order->source_message }}</blockquote>
                         @if ($order->source_reference)
                             <figcaption class="mt-1 text-xs text-ink-muted">{{ $order->source_reference }}</figcaption>
@@ -77,18 +77,18 @@
                         @if ($next === \App\Enums\OrderStatus::Delivered)
                             @foreach ($order->items->where('unit_type', \App\Enums\UnitType::Weight) as $item)
                                 <div class="space-y-1">
-                                    <label for="weight-{{ $item->id }}" class="block text-sm font-medium text-ink-soft">
+                                    <label for="weight-{{ $item->id }}" class="block text-sm font-semibold text-ink-soft">
                                         Peso real · {{ $item->product_name }}
                                         <span class="font-normal text-ink-muted">(pedido {{ Number::format($item->quantity, maxPrecision: 2, locale: 'es') }} kg)</span>
                                     </label>
                                     <input id="weight-{{ $item->id }}" name="weights[{{ $item->id }}]" type="number" step="0.005" min="0.005"
                                            value="{{ old("weights.{$item->id}", $item->quantity) }}"
                                            class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
-                                    @error("weights.{$item->id}") <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                                    @error("weights.{$item->id}") <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                                 </div>
                             @endforeach
                             <div class="space-y-1">
-                                <label for="payment_method" class="block text-sm font-medium text-ink-soft">Cobrado con</label>
+                                <label for="payment_method" class="block text-sm font-semibold text-ink-soft">Cobrado con</label>
                                 <select id="payment_method" name="payment_method" class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                                     @foreach (\App\Enums\PaymentMethod::cases() as $method)
                                         <option value="{{ $method->value }}" @selected($order->payment_method === $method)>{{ $method->label() }}</option>

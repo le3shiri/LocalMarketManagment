@@ -2,7 +2,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Copias de seguridad</h1>
-            <p class="text-sm text-ink-muted">Copia automática cada día a las 02:00. Se guardan las {{ $keep }} más recientes.</p>
+            <p class="mt-1 text-[15px] text-ink-muted">Copia automática cada día a las 02:00. Se guardan las {{ $keep }} más recientes.</p>
         </div>
         <form method="POST" action="{{ route('admin.backups.store') }}">
             @csrf
@@ -11,10 +11,10 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
-        <div class="overflow-x-auto rounded-card border border-line bg-white lg:col-span-2">
+        <div class="overflow-x-auto rounded-card bg-card shadow-card lg:col-span-2">
             <table class="min-w-full divide-y divide-line text-sm">
                 <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
-                    <tr><th class="px-4 py-3">Copia</th><th class="px-4 py-3">Fecha</th><th class="px-4 py-3 text-right">Tamaño</th><th class="px-4 py-3"></th></tr>
+                    <tr><th scope="col" class="px-4 py-3">Copia</th><th scope="col" class="px-4 py-3">Fecha</th><th scope="col" class="px-4 py-3 text-right">Tamaño</th><th scope="col" class="px-4 py-3"></th></tr>
                 </thead>
                 <tbody class="divide-y divide-line">
                     @forelse ($backups as $backup)

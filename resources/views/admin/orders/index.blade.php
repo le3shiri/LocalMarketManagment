@@ -4,24 +4,24 @@
 <x-layouts.app title="Supervisión de pedidos">
     <div class="mb-6">
         <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Supervisión de pedidos</h1>
-        <p class="text-sm text-ink-muted">Todos los canales. Los importes no incluyen pedidos cancelados.</p>
+        <p class="mt-1 text-[15px] text-ink-muted">Todos los canales. Los importes no incluyen pedidos cancelados.</p>
     </div>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-4">
         @php($all = $byChannel->sum('orders'))
-        <div class="rounded-card border border-line bg-white p-4">
-            <p class="text-xs uppercase tracking-wide text-ink-muted">Total</p>
+        <div class="rounded-card bg-card p-5 shadow-card">
+            <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">Total</p>
             <p class="mt-1 text-[28px] font-extrabold tracking-tight text-ink">{{ $all }} <span class="text-sm font-normal text-ink-muted">pedidos</span></p>
-            <p class="text-sm font-medium text-action">{{ Number::currency((float) $byChannel->sum('amount'), 'EUR', 'es') }}</p>
+            <p class="text-sm font-bold text-ink-soft">{{ Number::currency((float) $byChannel->sum('amount'), 'EUR', 'es') }}</p>
         </div>
         @foreach ($channels as $value => $label)
             @php($row = $byChannel->get($value))
-            <div class="rounded-card border border-line bg-white p-4" data-channel="{{ $value }}">
-                <p class="text-xs uppercase tracking-wide text-ink-muted">{{ $label }}</p>
+            <div class="rounded-card bg-card p-5 shadow-card" data-channel="{{ $value }}">
+                <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">{{ $label }}</p>
                 <p class="mt-1 text-[28px] font-extrabold tracking-tight text-ink">{{ $row->orders ?? 0 }}
                     @if ($all > 0)<span class="text-sm font-normal text-ink-muted">· {{ round(100 * ($row->orders ?? 0) / $all) }} %</span>@endif
                 </p>
-                <p class="text-sm font-medium text-action">{{ Number::currency((float) ($row->amount ?? 0), 'EUR', 'es') }}</p>
+                <p class="text-sm font-bold text-ink-soft">{{ Number::currency((float) ($row->amount ?? 0), 'EUR', 'es') }}</p>
             </div>
         @endforeach
     </div>
@@ -54,25 +54,25 @@
             <a href="{{ route('admin.orders.index') }}" class="px-2 py-2 text-sm text-ink-muted hover:underline">Quitar filtros</a>
         @endif
     </form>
-    @error('to') <p class="mb-3 text-xs text-red-600">{{ $message }}</p> @enderror
+    @error('to') <p class="mb-3 text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
 
     <div class="grid gap-6 lg:grid-cols-3">
-        <div class="overflow-x-auto rounded-card border border-line bg-white lg:col-span-2">
+        <div class="overflow-x-auto rounded-card bg-card shadow-card lg:col-span-2">
             <table class="min-w-full divide-y divide-line text-sm">
                 <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                     <tr>
-                        <th class="px-4 py-3">Pedido</th>
-                        <th class="px-4 py-3">Cliente</th>
-                        <th class="px-4 py-3">Franja</th>
-                        <th class="px-4 py-3 text-right">Total</th>
-                        <th class="px-4 py-3">Estado</th>
+                        <th scope="col" class="px-4 py-3">Pedido</th>
+                        <th scope="col" class="px-4 py-3">Cliente</th>
+                        <th scope="col" class="px-4 py-3">Franja</th>
+                        <th scope="col" class="px-4 py-3 text-right">Total</th>
+                        <th scope="col" class="px-4 py-3">Estado</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-line">
                     @forelse ($orders as $order)
                         <tr>
                             <td class="px-4 py-3">
-                                <a href="{{ route('staff.orders.show', $order) }}" class="font-mono font-medium text-action hover:underline">{{ $order->code }}</a>
+                                <a href="{{ route('staff.orders.show', $order) }}" class="font-mono font-bold text-action hover:underline">{{ $order->code }}</a>
                                 <p class="text-xs text-ink-muted">{{ $order->channelLabel() }} · {{ $order->fulfillment->label() }}</p>
                             </td>
                             <td class="px-4 py-3">{{ $order->contact_name }}<p class="text-xs text-ink-muted">{{ $order->contact_phone }}</p></td>

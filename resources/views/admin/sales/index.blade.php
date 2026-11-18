@@ -4,7 +4,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Ventas y pagos</h1>
-            <p class="text-sm text-ink-muted">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }}</p>
+            <p class="mt-1 text-[15px] text-ink-muted">Del {{ $from->format('d/m/Y') }} al {{ $to->format('d/m/Y') }}</p>
         </div>
         <form method="GET" class="flex flex-wrap items-end gap-2">
             <input type="date" name="from" value="{{ $from->toDateString() }}" class="min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]" aria-label="Desde">
@@ -25,24 +25,24 @@
         </form>
         <x-csv-link :href="route('admin.sales.export', request()->query())" />
     </div>
-    @error('to') <p class="mb-3 text-xs text-red-600">{{ $message }}</p> @enderror
+    @error('to') <p class="mb-3 text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
 
     <div class="mb-6 grid gap-4 sm:grid-cols-4">
-        <div class="rounded-card border border-line bg-white p-4">
-            <p class="text-xs uppercase tracking-wide text-ink-muted">Devoluciones</p>
+        <div class="rounded-card bg-card p-5 shadow-card">
+            <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">Devoluciones</p>
             <p class="mt-1 text-2xl font-bold text-red-700" data-refunds-total>-{{ Number::currency($refundsTotal, 'EUR', 'es') }}</p>
         </div>
-        <div class="rounded-card border border-line bg-white p-4">
-            <p class="text-xs uppercase tracking-wide text-ink-muted">Ventas en caja</p>
-            <p class="mt-1 text-2xl font-bold" data-sales-total>{{ Number::currency($salesTotal, 'EUR', 'es') }}</p>
+        <div class="rounded-card bg-card p-5 shadow-card">
+            <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">Ventas en caja</p>
+            <p class="mt-1 text-2xl font-extrabold tracking-tight" data-sales-total>{{ Number::currency($salesTotal, 'EUR', 'es') }}</p>
         </div>
-        <div class="rounded-card border border-line bg-white p-4">
-            <p class="text-xs uppercase tracking-wide text-ink-muted">Tickets</p>
-            <p class="mt-1 text-2xl font-bold" data-ticket-count>{{ $ticketCount }}</p>
+        <div class="rounded-card bg-card p-5 shadow-card">
+            <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">Tickets</p>
+            <p class="mt-1 text-2xl font-extrabold tracking-tight" data-ticket-count>{{ $ticketCount }}</p>
         </div>
-        <div class="rounded-card border border-line bg-white p-4">
-            <p class="text-xs uppercase tracking-wide text-ink-muted">Ticket medio</p>
-            <p class="mt-1 text-2xl font-bold" data-average>{{ Number::currency($averageTicket, 'EUR', 'es') }}</p>
+        <div class="rounded-card bg-card p-5 shadow-card">
+            <p class="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-muted">Ticket medio</p>
+            <p class="mt-1 text-2xl font-extrabold tracking-tight" data-average>{{ Number::currency($averageTicket, 'EUR', 'es') }}</p>
         </div>
     </div>
 
@@ -93,22 +93,22 @@
         </x-card>
     </div>
 
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">Ticket</th>
-                    <th class="px-4 py-3">Fecha</th>
-                    <th class="px-4 py-3">Cajero/a</th>
-                    <th class="px-4 py-3">Pago</th>
-                    <th class="px-4 py-3 text-right">Total</th>
+                    <th scope="col" class="px-4 py-3">Ticket</th>
+                    <th scope="col" class="px-4 py-3">Fecha</th>
+                    <th scope="col" class="px-4 py-3">Cajero/a</th>
+                    <th scope="col" class="px-4 py-3">Pago</th>
+                    <th scope="col" class="px-4 py-3 text-right">Total</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">
                 @forelse ($tickets as $sale)
                     <tr>
                         <td class="px-4 py-3">
-                            <a href="{{ route('pos.tickets.show', $sale) }}" class="font-mono font-medium text-action hover:underline">{{ $sale->code }}</a>
+                            <a href="{{ route('pos.tickets.show', $sale) }}" class="font-mono font-bold text-action hover:underline">{{ $sale->code }}</a>
                             <span class="block text-xs text-ink-muted">{{ $sale->items_count }} líneas</span>
                         </td>
                         <td class="px-4 py-3">{{ $sale->created_at->format('d/m/Y H:i') }}</td>

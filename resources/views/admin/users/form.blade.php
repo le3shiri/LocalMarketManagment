@@ -1,6 +1,6 @@
 <x-layouts.app :title="$user->exists ? 'Editar usuario' : 'Nuevo usuario'">
     <div class="mx-auto max-w-2xl">
-        <a href="{{ route('admin.users.index') }}" class="text-sm text-ink-muted hover:underline">← Volver a usuarios</a>
+        <a href="{{ route('admin.users.index') }}" class="inline-flex min-h-11 items-center text-[15px] font-bold text-action hover:underline">← Volver a usuarios</a>
 
         <x-card :title="$user->exists ? 'Editar '.$user->name : 'Nuevo usuario'" class="mt-3">
             <form method="POST" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" class="grid gap-4 sm:grid-cols-2">
@@ -13,13 +13,13 @@
                 <x-input name="address" label="Dirección" :value="$user->address" />
 
                 <div class="space-y-1">
-                    <label for="role_id" class="block text-sm font-medium text-ink-soft">Rol</label>
+                    <label for="role_id" class="block text-sm font-semibold text-ink-soft">Rol</label>
                     <select id="role_id" name="role_id" class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         @foreach ($roles as $role)
                             <option value="{{ $role->id }}" @selected(old('role_id', $user->role_id) == $role->id)>{{ $role->label }}</option>
                         @endforeach
                     </select>
-                    @error('role_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('role_id') <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="flex items-end pb-2">
@@ -28,7 +28,7 @@
                         <input type="checkbox" name="is_active" value="1" class="h-5 w-5 rounded border-line-strong accent-action" @checked(old('is_active', $user->is_active))>
                         Cuenta activa
                     </label>
-                    @error('is_active') <p class="ml-2 text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('is_active') <p class="ml-2 text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                 </div>
 
                 <x-input name="password" :label="$user->exists ? 'Nueva contraseña (opcional)' : 'Contraseña'" type="password" autocomplete="new-password" />

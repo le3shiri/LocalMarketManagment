@@ -2,7 +2,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Usuarios</h1>
-            <p class="text-sm text-ink-muted">{{ $users->total() }} cuentas registradas</p>
+            <p class="mt-1 text-[15px] text-ink-muted">{{ $users->total() }} cuentas registradas</p>
         </div>
         <a href="{{ route('admin.users.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-control bg-action px-5 text-[15px] font-bold text-on-action hover:bg-action-hover">Nuevo usuario</a>
     </div>
@@ -19,15 +19,15 @@
         <x-button variant="secondary">Filtrar</x-button>
     </form>
 
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">Nombre</th>
-                    <th class="px-4 py-3">Email</th>
-                    <th class="px-4 py-3">Rol</th>
-                    <th class="px-4 py-3">Estado</th>
-                    <th class="px-4 py-3 text-right">Acciones</th>
+                    <th scope="col" class="px-4 py-3">Nombre</th>
+                    <th scope="col" class="px-4 py-3">Email</th>
+                    <th scope="col" class="px-4 py-3">Rol</th>
+                    <th scope="col" class="px-4 py-3">Estado</th>
+                    <th scope="col" class="px-4 py-3 text-right">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">
@@ -39,13 +39,13 @@
                         <td class="px-4 py-3">
                             <span @class([
                                 'rounded-full px-2 py-0.5 text-xs font-medium',
-                                'bg-action-soft text-action' => $user->is_active,
+                                'bg-success-soft text-success-ink' => $user->is_active,
                                 'bg-sunken text-ink-muted' => ! $user->is_active,
                             ])>{{ $user->is_active ? 'Activa' : 'Desactivada' }}</span>
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex justify-end gap-2">
-                                <a href="{{ route('admin.users.edit', $user) }}" class="rounded-control px-2 py-1 text-action hover:bg-action-soft">Editar</a>
+                                <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-11 items-center rounded-control px-3 font-bold text-action hover:bg-action-soft">Editar</a>
                                 @unless ($user->is(auth()->user()))
                                     <form method="POST" action="{{ route('admin.users.toggle', $user) }}">
                                         @csrf

@@ -20,11 +20,11 @@
                 @method('PUT')
                 @foreach (['current_password' => 'Contraseña actual', 'password' => 'Nueva contraseña', 'password_confirmation' => 'Repite la nueva contraseña'] as $field => $label)
                     <div class="space-y-1">
-                        <label for="{{ $field }}" class="block text-sm font-medium text-ink-soft">{{ $label }}</label>
+                        <label for="{{ $field }}" class="block text-sm font-semibold text-ink-soft">{{ $label }}</label>
                         <input id="{{ $field }}" name="{{ $field }}" type="password" required
                                class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px] shadow-card focus:outline-none focus:ring-2 focus:ring-action-ring">
                         @error($field, 'password')
-                            <p class="text-xs text-red-600">{{ $message }}</p>
+                            <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p>
                         @enderror
                     </div>
                 @endforeach

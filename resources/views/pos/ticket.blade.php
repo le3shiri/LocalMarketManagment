@@ -10,7 +10,7 @@
 
     <div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
         @if ($justSold)
-            <p class="rounded-control bg-action-soft px-3 py-2 text-sm font-medium text-action">
+            <p class="rounded-control bg-success-soft px-3 py-2 text-sm font-bold text-success-ink">
                 Venta registrada.
                 @if ($sale->payment?->change > 0)
                     Cambio: {{ Number::currency((float) $sale->payment->change, 'EUR', 'es') }}
@@ -20,9 +20,9 @@
             <span></span>
         @endif
         <div class="flex gap-2">
-            <button type="button" onclick="window.print()" class="rounded-control border border-line-strong bg-white px-4 py-2 text-sm font-medium hover:bg-page">Imprimir ticket</button>
+            <button type="button" onclick="window.print()" class="rounded-control border border-line-strong bg-card px-4 py-2 text-sm font-medium hover:bg-page">Imprimir ticket</button>
             @can('refunds.manage')
-                <a href="{{ route('pos.refunds.create', $sale) }}" class="rounded-control border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50">Devolución</a>
+                <a href="{{ route('pos.refunds.create', $sale) }}" class="rounded-control border border-red-200 bg-card px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50">Devolución</a>
             @endcan
             @can('pos.use')
                 <a href="{{ route('pos.terminal') }}" class="inline-flex min-h-11 items-center justify-center rounded-control bg-action px-5 text-[15px] font-bold text-on-action hover:bg-action-hover">Nueva venta</a>
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <article class="ticket mx-auto max-w-sm rounded-card border border-line bg-white p-6 font-mono text-xs text-ink shadow-card">
+    <article class="ticket mx-auto max-w-sm rounded-card border border-line bg-card p-6 font-mono text-xs text-ink shadow-card">
         <header class="mb-3 text-center">
             <p class="text-base font-bold">LOCALMARKET</p>
             <p>Comercio de alimentación · Barcelona</p>

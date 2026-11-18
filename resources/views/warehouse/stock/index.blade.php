@@ -4,7 +4,7 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Inventario</h1>
-            <p class="text-sm text-ink-muted">Existencias reales repartidas entre la tienda física y el canal online.</p>
+            <p class="mt-1 text-[15px] text-ink-muted">Existencias reales repartidas entre la tienda física y el canal online.</p>
         </div>
         <div class="flex gap-2">
             @if ($lowCount > 0)
@@ -36,17 +36,17 @@
         <x-button variant="secondary">Filtrar</x-button>
     </form>
 
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">Producto</th>
-                    <th class="px-4 py-3 text-right">Existencias</th>
-                    <th class="px-4 py-3 text-right">Tienda</th>
-                    <th class="px-4 py-3 text-right">Online</th>
-                    <th class="px-4 py-3 text-right">Reservado</th>
-                    <th class="px-4 py-3 text-right">Disponible online</th>
-                    <th class="px-4 py-3 text-right">Mínimo</th>
+                    <th scope="col" class="px-4 py-3">Producto</th>
+                    <th scope="col" class="px-4 py-3 text-right">Existencias</th>
+                    <th scope="col" class="px-4 py-3 text-right">Tienda</th>
+                    <th scope="col" class="px-4 py-3 text-right">Online</th>
+                    <th scope="col" class="px-4 py-3 text-right">Reservado</th>
+                    <th scope="col" class="px-4 py-3 text-right">Disponible online</th>
+                    <th scope="col" class="px-4 py-3 text-right">Mínimo</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">
@@ -64,7 +64,7 @@
                         <td class="px-4 py-3 text-right">{{ $product->formatQuantity($stock->store_qty) }}</td>
                         <td class="px-4 py-3 text-right">{{ $product->formatQuantity($stock->online_qty) }}</td>
                         <td class="px-4 py-3 text-right text-ink-muted">{{ $product->formatQuantity($stock->reserved_qty) }}</td>
-                        <td class="px-4 py-3 text-right font-semibold text-action">{{ $product->formatQuantity($stock->available_online) }}</td>
+                        <td class="px-4 py-3 text-right font-extrabold text-ink">{{ $product->formatQuantity($stock->available_online) }}</td>
                         <td class="px-4 py-3 text-right">
                             @can('stock.entry')
                                 <form method="POST" action="{{ route('warehouse.minimum.update', $product) }}" class="inline-flex items-center justify-end gap-1">

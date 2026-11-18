@@ -4,7 +4,7 @@
     <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Próximos a caducar</h1>
-            <p class="text-sm text-ink-muted">Lotes con existencias que caducan en los próximos {{ $days }} días. Lo primero de la lista es lo primero que debe salir.</p>
+            <p class="mt-1 text-[15px] text-ink-muted">Lotes con existencias que caducan en los próximos {{ $days }} días. Lo primero de la lista es lo primero que debe salir.</p>
         </div>
         <form method="GET" class="flex items-end gap-2">
             <label class="text-sm text-ink-soft">Ver
@@ -45,7 +45,7 @@
                                 <form method="POST" action="{{ route('warehouse.expiry.withdraw', $batch) }}">
                                     @csrf
                                     @method('PATCH')
-                                    <button class="rounded-control border border-red-300 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100">Confirmar retirada física</button>
+                                    <button class="rounded-control border border-red-300 bg-card px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100">Confirmar retirada física</button>
                                 </form>
                             @endcan
                         @else
@@ -57,15 +57,15 @@
         </section>
     @endif
 
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">Caduca</th>
-                    <th class="px-4 py-3">Producto</th>
-                    <th class="px-4 py-3">Lote</th>
-                    <th class="px-4 py-3 text-right">Quedan</th>
-                    <th class="px-4 py-3">Ubicación</th>
+                    <th scope="col" class="px-4 py-3">Caduca</th>
+                    <th scope="col" class="px-4 py-3">Producto</th>
+                    <th scope="col" class="px-4 py-3">Lote</th>
+                    <th scope="col" class="px-4 py-3 text-right">Quedan</th>
+                    <th scope="col" class="px-4 py-3">Ubicación</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line">

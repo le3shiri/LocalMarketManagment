@@ -7,7 +7,7 @@
             <form method="POST" action="{{ route('warehouse.counts.store') }}" class="space-y-4">
                 @csrf
                 <div class="space-y-1">
-                    <label for="product_id" class="block text-sm font-medium text-ink-soft">Producto</label>
+                    <label for="product_id" class="block text-sm font-semibold text-ink-soft">Producto</label>
                     <select id="product_id" name="product_id" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         <option value="">Elige un producto…</option>
                         @foreach ($products as $product)
@@ -16,7 +16,7 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('product_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('product_id') <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                 </div>
                 <x-input name="counted" label="Cantidad contada (existencias reales)" inputmode="decimal" required />
                 <x-input name="reason" label="Motivo" required placeholder="Ej.: recuento de cierre, rotura no registrada" />
@@ -33,7 +33,7 @@
                             <p class="font-medium">{{ $movement->product->name }}</p>
                             <p class="text-xs text-ink-muted">{{ $movement->reason }} · {{ $movement->user?->name }} · {{ $movement->created_at->diffForHumans() }}</p>
                         </div>
-                        <p @class(['whitespace-nowrap font-medium', 'text-action' => $delta > 0, 'text-red-600' => $delta < 0])>
+                        <p @class(['whitespace-nowrap font-bold', 'text-success-ink' => $delta > 0, 'text-red-700' => $delta < 0])>
                             {{ $delta > 0 ? '+' : '' }}{{ $movement->product->formatQuantity($delta) }}
                         </p>
                     </li>

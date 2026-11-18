@@ -1,9 +1,9 @@
 <x-layouts.app title="Historial de operaciones">
     <div class="mb-6">
         <h1 class="text-[28px] font-extrabold tracking-tight text-ink">Historial de operaciones</h1>
-        <p class="text-sm text-ink-muted">Quién hizo qué, cuándo y desde dónde.</p>
+        <p class="mt-1 text-[15px] text-ink-muted">Quién hizo qué, cuándo y desde dónde.</p>
         @if ($integrity['valid'])
-            <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-action-soft px-3 py-1 text-xs font-medium text-action" data-integrity="ok">
+            <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 text-xs font-bold text-success-ink" data-integrity="ok">
                 ✓ Historial íntegro: {{ $integrity['checked'] }} entradas encadenadas verificadas
             </p>
         @else
@@ -35,15 +35,15 @@
         <x-button variant="secondary">Filtrar</x-button>
     </form>
 
-    <div class="overflow-x-auto rounded-card border border-line bg-white">
+    <div class="overflow-x-auto rounded-card bg-card shadow-card">
         <table class="min-w-full divide-y divide-line text-sm">
             <thead class="bg-sunken text-left text-xs font-bold uppercase tracking-[0.06em] text-ink-muted">
                 <tr>
-                    <th class="px-4 py-3">Fecha</th>
-                    <th class="px-4 py-3">Usuario</th>
-                    <th class="px-4 py-3">Acción</th>
-                    <th class="px-4 py-3">Detalle</th>
-                    <th class="px-4 py-3">IP</th>
+                    <th scope="col" class="px-4 py-3">Fecha</th>
+                    <th scope="col" class="px-4 py-3">Usuario</th>
+                    <th scope="col" class="px-4 py-3">Acción</th>
+                    <th scope="col" class="px-4 py-3">Detalle</th>
+                    <th scope="col" class="px-4 py-3">IP</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-line align-top">
@@ -55,8 +55,8 @@
                             <span @class([
                                 'whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium',
                                 'bg-red-50 text-red-700' => in_array($log->action, ['deleted', 'login_failed']),
-                                'bg-sky-50 text-sky-700' => in_array($log->action, ['login', 'logout']),
-                                'bg-action-soft text-action' => in_array($log->action, ['created', 'order', 'stock']),
+                                'bg-action-soft text-action' => in_array($log->action, ['login', 'logout']),
+                                'bg-success-soft text-success-ink' => in_array($log->action, ['created', 'order', 'stock']),
                                 'bg-warn-soft text-stock-low' => in_array($log->action, ['updated', 'permissions']),
                             ])>{{ $log->actionLabel() }}</span>
                         </td>

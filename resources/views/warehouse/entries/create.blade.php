@@ -7,7 +7,7 @@
             <form method="POST" action="{{ route('warehouse.entries.store') }}" class="space-y-4">
                 @csrf
                 <div class="space-y-1">
-                    <label for="product_id" class="block text-sm font-medium text-ink-soft">Producto</label>
+                    <label for="product_id" class="block text-sm font-semibold text-ink-soft">Producto</label>
                     <select id="product_id" name="product_id" required class="block w-full min-h-11 rounded-control border border-line-strong bg-card px-3 text-[15px]">
                         <option value="">Elige un producto…</option>
                         @foreach ($products as $product)
@@ -16,7 +16,7 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('product_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('product_id') <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">

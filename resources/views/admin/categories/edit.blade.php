@@ -1,6 +1,6 @@
 <x-layouts.app title="Editar categoría">
     <div class="mx-auto max-w-lg">
-        <a href="{{ route('admin.categories.index') }}" class="text-sm text-ink-muted hover:underline">← Volver a categorías</a>
+        <a href="{{ route('admin.categories.index') }}" class="inline-flex min-h-11 items-center text-[15px] font-bold text-action hover:underline">← Volver a categorías</a>
 
         <x-card :title="'Editar '.$category->name" class="mt-3">
             <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="space-y-4">

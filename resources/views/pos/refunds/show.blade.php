@@ -3,11 +3,11 @@
     <style>@media print { header, footer, .no-print { display: none !important; } }</style>
 
     <div class="no-print mb-4 flex justify-end gap-2">
-        <button type="button" onclick="window.print()" class="rounded-control border border-line-strong bg-white px-4 py-2 text-sm font-medium hover:bg-page">Imprimir</button>
+        <button type="button" onclick="window.print()" class="rounded-control border border-line-strong bg-card px-4 py-2 text-sm font-medium hover:bg-page">Imprimir</button>
         <a href="{{ route('pos.tickets.show', $refund->sale) }}" class="inline-flex min-h-11 items-center justify-center rounded-control bg-action px-5 text-[15px] font-bold text-on-action hover:bg-action-hover">Volver al ticket</a>
     </div>
 
-    <article class="mx-auto max-w-sm rounded-card border border-line bg-white p-6 font-mono text-xs shadow-card">
+    <article class="mx-auto max-w-sm rounded-card border border-line bg-card p-6 font-mono text-xs shadow-card">
         <header class="mb-3 text-center">
             <p class="text-base font-bold">LOCALMARKET</p>
             <p class="mt-2 font-semibold">TICKET DE DEVOLUCIÓN</p>

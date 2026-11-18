@@ -1,6 +1,6 @@
 @use('Illuminate\Support\Number')
 <x-layouts.app :title="'Devolución del ticket '.$sale->code">
-    <a href="{{ route('pos.tickets.show', $sale) }}" class="text-sm text-ink-muted hover:underline">← Ticket {{ $sale->code }}</a>
+    <a href="{{ route('pos.tickets.show', $sale) }}" class="inline-flex min-h-11 items-center text-[15px] font-bold text-action hover:underline">← Ticket {{ $sale->code }}</a>
 
     <div class="mx-auto mt-3 max-w-3xl">
         <x-card :title="'Devolución del ticket '.$sale->code">
@@ -40,7 +40,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    @error('quantities') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('quantities') <p class="text-[13px] font-semibold text-red-700">{{ $message }}</p> @enderror
 
                     <x-input name="reason" label="Motivo de la devolución" required placeholder="Ej.: producto en mal estado" />
                     <x-button variant="danger">Registrar devolución y reembolsar</x-button>

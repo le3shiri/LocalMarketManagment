@@ -30,6 +30,8 @@ Route::middleware('auth')->prefix('almacen')->name('warehouse.')->group(function
     Route::middleware('can:stock.exit')->group(function () {
         Route::get('salidas/nueva', [StockExitController::class, 'create'])->name('exits.create');
         Route::post('salidas', [StockExitController::class, 'store'])->name('exits.store');
+        Route::post('caducidades/bloquear', [ExpiryController::class, 'block'])->name('expiry.block');
+        Route::patch('lotes/{batch}/retirada', [ExpiryController::class, 'withdraw'])->name('expiry.withdraw');
     });
 
     Route::middleware('can:stock.adjust')->group(function () {

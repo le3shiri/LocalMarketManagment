@@ -298,6 +298,50 @@ class StockService
     }
 
     /**
+     * Take the remaining units of an expired batch out of the sellable stock so they can't
+     * be sold online or at the till: first from the store, then from free online stock.
+     * Units already reserved for orders are left reserved (staff must offer a substitute),
+     * which the ledger notes. The batch stays "expired" until someone confirms it was
+     * physically withdrawn.
+     *
+     * @return float units blocked
+     */
+    public function expireBatch(StockBatch $batch, ?User $user = null): float
+    {
+        return DB::transaction(function () use ($batch, $user) {
+            $batch = StockBatch::whereKey($batch->id)->lockForUpdate()->firstOrFail();
+
+            if ($batch->status !== StockBatch::ACTIVE) {
+                return 0.0;
+            }
+
+            $stock = ProductStock::where('product_id', $batch->product_id)->lockForUpdate()->firstOrFail();
+            $quantity = $batch->quantity_remaining;
+
+            $fromStore = min($stock->store_qty, $quantity);
+            $fromOnline = min(max(0, $stock->online_qty - $stock->reserved_qty), round($quantity - $fromStore, 3));
+            $blocked = round($fromStore + $fromOnline, 3);
+
+            $stock->store_qty = round($stock->store_qty - $fromStore, 3);
+            $stock->online_qty = round($stock->online_qty - $fromOnline, 3);
+            $stock->on_hand = max(0, round($stock->on_hand - $blocked, 3));
+            $stock->save();
+
+            $batch->status = StockBatch::EXPIRED;
+            $batch->save();
+
+            $reason = "Lote {$batch->lot_code} caducado el {$batch->expires_at?->format('d/m/Y')}";
+            if ($blocked + 0.0005 < $quantity) {
+                $reason .= ' · '.round($quantity - $blocked, 3).' reservado(s) en pedidos: ofrecer sustituto';
+            }
+
+            $this->log($stock, MovementType::Expiry, $user, store: -$fromStore, online: -$fromOnline, reference: $batch->lot_code, reason: $reason, consumeBatches: false);
+
+            return $blocked;
+        });
+    }
+
+    /**
      * Returned goods that can be sold again go back to the store shelf.
      *
      * @param  array<int, float>  $lines  product_id => quantity

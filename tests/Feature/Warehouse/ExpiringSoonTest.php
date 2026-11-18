@@ -57,7 +57,10 @@ class ExpiringSoonTest extends TestCase
         $this->batch('Yogur', 'L-OLD', '2026-11-19');
         $this->batch('Leche', 'L-WD', '2026-11-21')->update(['status' => StockBatch::WITHDRAWN]);
 
-        $this->actingAs($this->manager)->get('/almacen/caducidades')->assertDontSee('L-OLD')->assertDontSee('L-WD');
+        $response = $this->actingAs($this->manager)->get('/almacen/caducidades')->assertDontSee('L-WD');
+
+        // Since SUP-53 expired batches have their own section, not the "about to expire" table.
+        $this->assertFalse($response->viewData('batches')->contains('lot_code', 'L-OLD'));
     }
 
     public function test_demo_catalog_creates_batches_with_expiry_for_perishables(): void
